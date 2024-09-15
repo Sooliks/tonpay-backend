@@ -20,12 +20,15 @@ model User {
 
 model Scope {
   id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
   subScopes SubScope[]
 }
+
 model SubScope {
   id      String @id @default(auto()) @map("_id") @db.ObjectId
   scope   Scope  @relation(fields: [scopeId], references: [id], onDelete: Cascade)
   scopeId String @db.ObjectId
+  name    String
 }
 
 model Sale {
