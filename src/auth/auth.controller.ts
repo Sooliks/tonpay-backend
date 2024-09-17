@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Body, Controller, Get, Post, Request } from "@nestjs/common";
 import { AuthService } from './auth.service';
 import { PublicRoute } from "../decorators/public-route.decorator";
 
@@ -13,5 +13,7 @@ export class AuthController {
   }
 
   @Get("me")
-  async getCurrentUser() {}
+  async getCurrentUser(@Request() req: { id: string }) {
+    return await this.authService.getUserById(req.id)
+  }
 }

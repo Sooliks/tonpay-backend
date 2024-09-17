@@ -10,13 +10,13 @@ datasource db {
 model User {
   id         String     @id @default(auto()) @map("_id") @db.ObjectId
   createdAt  DateTime   @default(now())
-  telegramId Int
+  telegramId Int        @unique
   nickname   String     @unique
   role       Role       @default(USER)
   refId      String?
   isPremium  Boolean    @default(false)
   sales      Sale[]
-  isBanned   Boolean
+  isBanned   Boolean    @default(false)
   messages   Message[]
   chats      UserChat[]
   feedbacks  Feedback[]
@@ -52,14 +52,14 @@ model Sale {
   user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      String     @db.ObjectId
   price       Float
-  count       Int        @default(1)
-  product     String?
+  count       Int?
+  product     String[]   @default([])
   isPublished Boolean    @default(false)
   scopeId     String     @db.ObjectId
   subScopeId  String     @db.ObjectId
   scope       Scope      @relation(fields: [scopeId], references: [id], onDelete: Cascade)
   subScope    SubScope   @relation(fields: [subScopeId], references: [id], onDelete: Cascade)
-  adminId     String     @db.ObjectId
+  adminId     String?    @db.ObjectId
   title       String
   description String
   feedback    Feedback[]

@@ -1,8 +1,22 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from "../prisma.service";
+import { Sale } from "@prisma/client";
+import { CreateSaleDto } from "./sale.dto";
+
 
 @Injectable()
 export class SaleService {
-  findAll(): string[] {
-    return []
+  constructor(private readonly prisma: PrismaService) {}
+  findAll() {
+    return this.prisma.sale.findMany()
+  }
+
+  create(dto: CreateSaleDto){
+    return this.prisma.sale.create({
+      data: {
+        ...dto,
+        userId: 'тут поставить юзера'
+      }
+    })
   }
 }

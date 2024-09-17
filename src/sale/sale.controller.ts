@@ -1,5 +1,7 @@
-import { Controller, Get, ParseIntPipe, Query } from "@nestjs/common";
+import { Body, Controller, Get, ParseIntPipe, Post, Query } from "@nestjs/common";
 import { SaleService } from './sale.service';
+import { CreateSaleDto } from "./sale.dto";
+import { PublicRoute } from "../decorators/public-route.decorator";
 
 @Controller('sale')
 export class SaleController {
@@ -9,5 +11,11 @@ export class SaleController {
   findAll(@Query('pageNumber', ParseIntPipe) pageNumber: number){
     console.log(pageNumber)
     return this.saleService.findAll();
+  }
+
+
+  @Post('create')
+  create(@Body() dto: CreateSaleDto){
+    return this.saleService.create(dto)
   }
 }
