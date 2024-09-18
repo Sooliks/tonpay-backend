@@ -1,5 +1,4 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
-import { Observable } from 'rxjs';
 import { Reflector } from "@nestjs/core";
 import { IS_PUBLIC_ROUTE_KEY } from "../decorators/public-route.decorator";
 import { Request } from "express"

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, ParseIntPipe, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, ParseIntPipe, Post, Query, Request } from "@nestjs/common";
 import { SaleService } from './sale.service';
 import { CreateSaleDto } from "./sale.dto";
 import { PublicRoute } from "../decorators/public-route.decorator";
@@ -13,9 +13,8 @@ export class SaleController {
     return this.saleService.findAll();
   }
 
-
   @Post('create')
-  create(@Body() dto: CreateSaleDto){
-    return this.saleService.create(dto)
+  create(@Body() dto: CreateSaleDto, @Request() req: { id: string }){
+    return this.saleService.create(dto, req.id)
   }
 }
