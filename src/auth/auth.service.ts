@@ -12,21 +12,24 @@ export class AuthService {
 
     try {
       validate(initData, botToken, {
-        expiresIn: 300,
+        expiresIn: 10000,
       })
 
       const parsedData = parse(initData)
       const user = await this.findOrCreateUser(parsedData.user.id, parsedData.user.username)
       const payload = { id: user.id }
       return {
-        user: parsedData.user as User,
+        user: user,
         token: await this.jwtService.signAsync(payload)
       }
     } catch (e) {
+      console.log(e)
       throw new UnauthorizedException()
     }
   }
   async findOrCreateUser(telegramId: number, nickname: string) {
+    console.log(telegramId)
+    console.log(nickname)
     let user = await this.prisma.user.findUnique({
       where: {telegramId: telegramId}
     })
@@ -39,7 +42,6 @@ export class AuthService {
         }
       })
     }
-
     return user
   }
   async getUserById(id: string) {
@@ -48,7 +50,7 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException()
     }
-
+    
     return user
   }
 }
