@@ -11,10 +11,10 @@ export class SaleService {
     return this.prisma.sale.findMany()
   }
 
-  create(dto: CreateSaleDto, userId: string){
+  create(saleDto: CreateSaleDto, userId: string){
     return this.prisma.sale.create({
       data: {
-        ...dto,
+        ...saleDto,
         userId: userId
       }
     })

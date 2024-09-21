@@ -7,11 +7,12 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD, APP_PIPE } from "@nestjs/core";
 import { RolesGuard } from "./roles/roles.guard";
 import { ScopesModule } from './scopes/scopes.module';
+import { FeedbackModule } from './feedback/feedback.module';
 
 @Module({
   imports: [SaleModule, AuthModule, ConfigModule.forRoot({
     isGlobal: true
-  }), ScopesModule],
+  }), ScopesModule, FeedbackModule],
   controllers: [AppController],
   providers: [AppService,
     {
