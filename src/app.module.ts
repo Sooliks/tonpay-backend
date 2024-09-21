@@ -4,17 +4,24 @@ import { AppService } from './app.service';
 import { SaleModule } from './sale/sale.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
-import { APP_PIPE } from "@nestjs/core";
+import { APP_GUARD, APP_PIPE } from "@nestjs/core";
+import { RolesGuard } from "./roles/roles.guard";
+import { ScopesModule } from './scopes/scopes.module';
 
 @Module({
   imports: [SaleModule, AuthModule, ConfigModule.forRoot({
     isGlobal: true
-  })],
+  }), ScopesModule],
   controllers: [AppController],
   providers: [AppService,
     {
       provide: APP_PIPE,
       useClass: ValidationPipe
-    }],
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    }
+    ],
 })
 export class AppModule {}

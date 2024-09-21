@@ -28,8 +28,6 @@ export class AuthService {
     }
   }
   async findOrCreateUser(telegramId: number, nickname: string) {
-    console.log(telegramId)
-    console.log(nickname)
     let user = await this.prisma.user.findUnique({
       where: {telegramId: telegramId}
     })
@@ -46,11 +44,9 @@ export class AuthService {
   }
   async getUserById(id: string) {
     const user = await this.prisma.user.findUnique({where: {id: id}})
-
     if (!user) {
       throw new NotFoundException()
     }
-    
     return user
   }
 }
