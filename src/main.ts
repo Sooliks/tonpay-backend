@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from "@nestjs/common";
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api')
@@ -13,5 +12,6 @@ async function bootstrap() {
     "optionsSuccessStatus": 204
   });
   await app.listen(4200);
+
 }
 bootstrap();

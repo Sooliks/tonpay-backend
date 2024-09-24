@@ -37,8 +37,16 @@ model Feedback {
 model Scope {
   id        String     @id @default(auto()) @map("_id") @db.ObjectId
   name      String
+  type      ScopeType
   subScopes SubScope[]
   sales     Sale[]
+}
+
+enum ScopeType {
+  pc_games
+  mobile_games
+  tg_mini_app_game
+  social_network
 }
 
 model SubScope {

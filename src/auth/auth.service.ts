@@ -26,7 +26,6 @@ export class AuthService {
         token: await this.jwtService.signAsync(payload)
       }
     } catch (e) {
-      console.log(e)
       throw new UnauthorizedException()
     }
   }

@@ -8,7 +8,8 @@ export class ScopesService {
   async createScope(scopeDto: CreateScopeDto) {
     return this.prisma.scope.create({
       data: {
-        name: scopeDto.name
+        name: scopeDto.name,
+        type: scopeDto.type
       }
     })
   }

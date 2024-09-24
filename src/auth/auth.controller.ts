@@ -11,12 +11,10 @@ export class AuthController {
   @Post("login")
   @PublicRoute()
   async login(@Body() body: { initData: string, refId?: string }) {
-    console.log('1')
     return await this.authService.login(body.initData, body.refId)
   }
   @Get("me")
   async getCurrentUser(@Request() req: { id: string }) {
-    console.log('2')
     return await this.authService.getUserById(req.id)
   }
 }
