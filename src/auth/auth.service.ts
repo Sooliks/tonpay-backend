@@ -7,7 +7,7 @@ import { JwtService } from "@nestjs/jwt";
 @Injectable()
 export class AuthService {
   constructor(private readonly prisma: PrismaService, private readonly configService: ConfigService,private readonly jwtService: JwtService) {}
-  async login(initData: string) {
+  async login(initData: string, refId?: string) {
     const botToken = this.configService.get<string>('TELEGRAMBOT_TOKEN')
 
     try {
@@ -16,7 +16,10 @@ export class AuthService {
       })
 
       const parsedData = parse(initData)
-      const user = await this.findOrCreateUser(parsedData.user.id, parsedData.user.username)
+      const user = await this.findOrCreateUser(parsedData.user.id, parsedData.user.username, refId)
+      if(user.isBanned === true) {
+        throw new UnauthorizedException('You banned')
+      }
       const payload = { id: user.id }
       return {
         user: user,
@@ -27,7 +30,7 @@ export class AuthService {
       throw new UnauthorizedException()
     }
   }
-  async findOrCreateUser(telegramId: number, nickname: string) {
+  async findOrCreateUser(telegramId: number, nickname: string, refId?: string) {
     let user = await this.prisma.user.findUnique({
       where: {telegramId: telegramId}
     })
@@ -36,7 +39,8 @@ export class AuthService {
       user = await this.prisma.user.create({
         data: {
           telegramId: telegramId,
-          nickname: nickname
+          nickname: nickname,
+          refId: refId
         }
       })
     }

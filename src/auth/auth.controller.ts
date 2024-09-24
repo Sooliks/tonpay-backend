@@ -10,12 +10,11 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
   @Post("login")
   @PublicRoute()
-  async login(@Body() body: { initData: string }) {
+  async login(@Body() body: { initData: string, refId?: string }) {
     console.log('1')
-    return await this.authService.login(body.initData)
+    return await this.authService.login(body.initData, body.refId)
   }
   @Get("me")
-  @Roles(Role.ADMIN)
   async getCurrentUser(@Request() req: { id: string }) {
     console.log('2')
     return await this.authService.getUserById(req.id)
