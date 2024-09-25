@@ -8,13 +8,18 @@ import { APP_GUARD, APP_PIPE } from "@nestjs/core";
 import { RolesGuard } from "./roles/roles.guard";
 import { ScopesModule } from './scopes/scopes.module';
 import { FeedbackModule } from './feedback/feedback.module';
+import { TonModule } from './ton/ton.module';
+import { ScheduleModule } from "@nestjs/schedule";
+import { TonService } from "./ton/ton.service";
+import { PrismaService } from "./prisma.service";
 
 @Module({
   imports: [SaleModule, AuthModule, ConfigModule.forRoot({
     isGlobal: true
-  }), ScopesModule, FeedbackModule],
+  }), ScopesModule, FeedbackModule, TonModule],
   controllers: [AppController],
-  providers: [AppService,
+  providers: [
+    AppService,
     {
       provide: APP_PIPE,
       useClass: ValidationPipe
@@ -23,6 +28,6 @@ import { FeedbackModule } from './feedback/feedback.module';
       provide: APP_GUARD,
       useClass: RolesGuard,
     }
-    ],
+  ]
 })
 export class AppModule {}
