@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from "../prisma.service";
-import { Address, fromNano, Message, toNano, TonClient } from "ton";
+import { Address, Cell, fromNano, Message, toNano, TonClient } from "ton";
 import { Cron } from "@nestjs/schedule";
+import { isMongoId } from "class-validator";
 
 
 @Injectable()
@@ -21,43 +22,63 @@ export class TonService {
       console.log(e)
     });
   }
+  bigIntToBuffer(data: bigint) {
+    if (!data) {
+      return Buffer.from([])
+    }
+    const hexStr = data.toString(16)
+    const pad = hexStr.padStart(64)
+    const hashHex = Buffer.from(pad, 'hex')
+
+    return hashHex
+  }
   async checkNewTransactions() {
+    function sanitizeObjectId(oid: string): string {
+      // Удаляем все символы, кроме 0-9, a-f и нулевые символы
+      return oid.replace(/[\x00]/g, '').replace(/[^0-9a-f]/g, '');
+    }
+    function isValidObjectId(oid: string): boolean {
+      return oid.length === 24 && /^[0-9a-f]{24}$/.test(oid);
+    }
     try {
       const address = Address.parse('UQDFD5TTfKEKnFgJkeKiCCzrDpX_iM85JRdig3RnmPrnjjMA');
       const transactions = await this.client.getTransactions(address, {
         limit: 5, lt: Date.now().toString()
       });
       for (const transaction of transactions) {
-        /*console.log(transaction.outMessages)
-        console.log(toNano(transaction.totalFees.coins))*/
-        console.log(transaction.outMessages)
-
-
-
-        /*const comment = JSON.parse(transaction.raw.toString());
-        const userId = comment.userId;
-        const existingTransaction = await this.prisma.transaction.findFirst({ where: { transactionId: transaction.hash.toString() } })
-        if (!existingTransaction) {
-          await this.prisma.transaction.create({
-            data: {
-              userId: userId,
-              transactionId: transaction.hash.toString(),
-              confirmed: transaction.endStatus === 'active',
-              countTon: Number(transaction.stateUpdate)
-            }
+        try {
+          const userId = sanitizeObjectId(Buffer.from(transaction.inMessage?.body.asSlice().loadStringTail().toString(), 'utf-8').toString('utf-8'));
+          const description: any = transaction.description;
+          const success: boolean = description.computePhase.success && description.actionPhase.success;
+          const amount = fromNano(description.creditPhase.credit.coins)
+          const txId = sanitizeObjectId(Buffer.from(this.bigIntToBuffer(transaction.prevTransactionHash).toString('hex').toString(), 'utf-8').toString('utf-8'));
+          const existingTransaction = await this.prisma.transaction.findFirst({
+            where: { transactionId: txId, userId: userId, countTon: Number(amount) }
           })
-          if (transaction.endStatus === 'active') {
-            await this.prisma.user.update({
-              where: { id: userId },
+          if (!existingTransaction) {
+            const tx = await this.prisma.transaction.create({
               data: {
-                money: { increment: Number(transaction.stateUpdate) }
+                userId: userId,
+                transactionId: txId,
+                confirmed: success,
+                countTon: Number(amount)
               }
             })
+            if (tx.confirmed === true) {
+              await this.prisma.user.update({
+                where: { id: userId },
+                data: {
+                  money: { increment: Number(amount) }
+                }
+              })
+            }
           }
-        }*/
+        }catch (e) {
+          continue
+        }
       }
     }catch (error) {
-      console.error('Ошибка в цикле:', error);
+      console.error('Ошибка', error);
     }
   }
 }
