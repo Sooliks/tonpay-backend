@@ -15,7 +15,13 @@ export class TonService {
       apiKey: 'ea3449af5a3b4d4dfae328caa64e0ee315a4b829c46094586f33fa88e9d35bdc'
     });
   }
-  @Cron('*/1 * * * *') // Каждые 5 минут
+
+  async findTransactions(userId: string, count: number, skip?: number){
+    return this.prisma.transaction.findMany({where: {userId: userId}, take: Number(count), skip: skip ? Number(skip) : undefined})
+  }
+
+
+  @Cron('*/30 * * * * *') // Каждые 30 секунд
   handleCron() {
     console.log('Проверка новых транзакций...');
     this.checkNewTransactions().catch((e)=>{
@@ -36,9 +42,6 @@ export class TonService {
     function sanitizeObjectId(oid: string): string {
       // Удаляем все символы, кроме 0-9, a-f и нулевые символы
       return oid.replace(/[\x00]/g, '').replace(/[^0-9a-f]/g, '');
-    }
-    function isValidObjectId(oid: string): boolean {
-      return oid.length === 24 && /^[0-9a-f]{24}$/.test(oid);
     }
     try {
       const address = Address.parse('UQDFD5TTfKEKnFgJkeKiCCzrDpX_iM85JRdig3RnmPrnjjMA');
@@ -61,7 +64,8 @@ export class TonService {
                 userId: userId,
                 transactionId: txId,
                 confirmed: success,
-                countTon: Number(amount)
+                countTon: Number(amount),
+                type: 'PAYMENT'
               }
             })
             if (tx.confirmed === true) {
