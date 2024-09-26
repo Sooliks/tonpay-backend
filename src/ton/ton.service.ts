@@ -18,7 +18,12 @@ export class TonService {
   }
 
   async findTransactions(userId: string, count: number, skip?: number){
-    return this.prisma.transaction.findMany({where: {userId: userId}, take: Number(count), skip: skip ? Number(skip) : undefined})
+    return this.prisma.transaction.findMany({
+      where: {userId: userId},
+      take: Number(count),
+      skip: skip ? Number(skip) : undefined,
+      orderBy: [{id: 'desc'}]
+    })
   }
 
 
@@ -57,6 +62,7 @@ export class TonService {
           const success: boolean = description.computePhase.success && description.actionPhase.success;
           const amount = fromNano(description.creditPhase.credit.coins)
           const txId = sanitizeObjectId(Buffer.from(this.bigIntToBuffer(transaction.prevTransactionHash).toString('hex').toString(), 'utf-8').toString('utf-8'));
+          if(!txId)return
           const existingTransaction = await this.prisma.transaction.findFirst({
             where: { transactionId: txId, userId: userId, countTon: Number(amount) }
           })
