@@ -3,6 +3,7 @@ import { PrismaService } from "../prisma.service";
 import { Address, Cell, fromNano, Message, toNano, TonClient } from "ton";
 import { Cron } from "@nestjs/schedule";
 import { isMongoId } from "class-validator";
+import { TransactionType } from "@prisma/client";
 
 
 @Injectable()
@@ -51,6 +52,7 @@ export class TonService {
       for (const transaction of transactions) {
         try {
           const userId = sanitizeObjectId(Buffer.from(transaction.inMessage?.body.asSlice().loadStringTail().toString(), 'utf-8').toString('utf-8'));
+          if(!userId)return
           const description: any = transaction.description;
           const success: boolean = description.computePhase.success && description.actionPhase.success;
           const amount = fromNano(description.creditPhase.credit.coins)
@@ -65,7 +67,7 @@ export class TonService {
                 transactionId: txId,
                 confirmed: success,
                 countTon: Number(amount),
-                type: 'PAYMENT'
+                type: TransactionType.PAYMENT
               }
             })
             if (tx.confirmed === true) {
