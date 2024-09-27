@@ -63,6 +63,7 @@ export class TonService {
       await this.sleep(1500);
       currentSeqno = await walletContract.getSeqno();
     }
+    //TODO добавлять транзу в бд
   }
   async findTransactions(userId: string, count: number, skip?: number){
     return this.prisma.transaction.findMany({
