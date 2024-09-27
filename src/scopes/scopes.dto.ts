@@ -3,10 +3,14 @@ import { ScopeType } from "@prisma/client";
 export class CreateScopeDto {
   @IsString()
   name: string
+
   @IsEnum(ScopeType)
   type: ScopeType
 }
-export class CreateSubScopeDto extends CreateScopeDto{
+export class CreateSubScopeDto {
+  @IsString()
+  name: string
+
   @IsMongoId()
   scopeId: string
 }

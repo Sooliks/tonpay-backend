@@ -35,7 +35,8 @@
     "class-validator": "^0.14.1",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
-    "ton": "^13.9.0"
+    "ton": "^13.9.0",
+    "ton-crypto": "^3.2.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

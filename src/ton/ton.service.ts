@@ -1,22 +1,69 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
-import { Address, Cell, fromNano, Message, toNano, TonClient } from "ton";
+import { Address, fromNano, internal, TonClient, WalletContractV4 } from "ton";
 import { Cron } from "@nestjs/schedule";
-import { isMongoId } from "class-validator";
 import { TransactionType } from "@prisma/client";
-
+import { mnemonicNew, mnemonicToPrivateKey, mnemonicToWalletKey } from "ton-crypto";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class TonService {
   private client: TonClient;
-
-  constructor(private readonly prisma: PrismaService) {
+  private fee: number;
+  constructor(private readonly prisma: PrismaService, private readonly configService: ConfigService) {
+    this.fee = 10;
     this.client = new TonClient({
       endpoint: 'https://toncenter.com/api/v2/jsonRPC',
       apiKey: 'ea3449af5a3b4d4dfae328caa64e0ee315a4b829c46094586f33fa88e9d35bdc'
     });
   }
 
+  sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+  subtractPercentage(amount: number, percentage: number): number {
+    const deduction = (amount * percentage) / 100;
+    return amount - deduction;
+  }
+  async sendCoins(amount: number, address: string, userId: string) {
+    const user = await this.prisma.user.findUnique({where: {id: userId}})
+    if(user.money < amount){
+      throw new BadRequestException('Insufficient funds')
+    }
+    const mnemonic = this.configService.get<string>('SID');
+    const key = await mnemonicToWalletKey(mnemonic.split(" "));
+    const wallet = WalletContractV4.create({ publicKey: key.publicKey, workchain: 0 });
+    if (!await this.client.isContractDeployed(wallet.address)) {
+      throw new BadRequestException('Wallet is not deployed')
+    }
+    await this.prisma.user.update({
+      where: {id: userId},
+      data: {
+        money: {decrement: amount}
+      }
+    })
+    const walletContract = this.client.open(wallet);
+    const seqno = await walletContract.getSeqno();
+    amount = this.subtractPercentage(amount, this.fee);
+    await walletContract.sendTransfer({
+      secretKey: key.secretKey,
+      seqno: seqno,
+      messages: [
+        internal({
+          to: address,
+          value: amount.toString(),
+          body: `Withdraw, fee: ${this.fee}%`,
+          bounce: false,
+        })
+      ]
+    });
+    let currentSeqno = seqno;
+    while (currentSeqno == seqno) {
+      console.log("waiting for transaction to confirm...");
+      await this.sleep(1500);
+      currentSeqno = await walletContract.getSeqno();
+    }
+  }
   async findTransactions(userId: string, count: number, skip?: number){
     return this.prisma.transaction.findMany({
       where: {userId: userId},
@@ -25,8 +72,6 @@ export class TonService {
       orderBy: [{id: 'desc'}]
     })
   }
-
-
   @Cron('*/30 * * * * *') // Каждые 30 секунд
   handleCron() {
     console.log('Проверка новых транзакций...');
