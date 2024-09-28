@@ -33,7 +33,6 @@ export class AuthService {
     let user = await this.prisma.user.findUnique({
       where: {telegramId: telegramId}
     })
-
     if (!user) {
       user = await this.prisma.user.create({
         data: {
@@ -51,6 +50,7 @@ export class AuthService {
       if (!user) {
         throw new NotFoundException()
       }
+      this.prisma.user.update({where: {id: id}, data: {lastOnline: new Date()}})
       return user
     }catch (e) {
       throw new UnauthorizedException()

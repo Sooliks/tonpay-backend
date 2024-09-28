@@ -22,6 +22,7 @@ model User {
   feedbacks    Feedback[]
   money        Float         @default(0)
   transactions Transaction[]
+  lastOnline   DateTime      @default(now())
 }
 
 model Transaction {

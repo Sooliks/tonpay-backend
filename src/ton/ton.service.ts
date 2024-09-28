@@ -65,7 +65,7 @@ export class TonService {
       let countWaiting = 0;
       while (currentSeqno == seqno) {
         console.log("waiting for transaction to confirm...");
-        if(countWaiting >= 120){
+        if(countWaiting >= 60){
           throw new BadRequestException('The TON network is overloaded')
         }
         await this.sleep(1500);
@@ -79,6 +79,7 @@ export class TonService {
           money: {increment: amount}
         }
       })
+      console.log(e)
       throw new BadRequestException('The TON network is overloaded')
     }
     //TODO добавлять транзу в бд
