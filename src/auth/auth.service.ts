@@ -51,10 +51,12 @@ export class AuthService {
         throw new NotFoundException()
       }
       const currentDate = new Date();
-      this.prisma.user.update({where: {id: id}, data: {lastOnline: currentDate}})
+      await this.prisma.user.update({
+        where: {id: id},
+        data: {lastOnline: currentDate}
+      })
       return user
     }catch (e) {
-      console.log(e)
       throw new UnauthorizedException()
     }
   }
