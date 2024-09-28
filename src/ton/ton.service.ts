@@ -79,6 +79,7 @@ export class TonService {
           money: {increment: amount}
         }
       })
+      throw new BadRequestException('The TON network is overloaded')
     }
     //TODO добавлять транзу в бд
   }
