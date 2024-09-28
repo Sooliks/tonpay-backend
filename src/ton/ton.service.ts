@@ -48,24 +48,29 @@ export class TonService {
     try {
       const walletContract = this.client.open(wallet);
       const seqno = await walletContract.getSeqno();
-      amount = this.subtractPercentage(amount, this.fee);
+      const amountWithFee = this.subtractPercentage(amount, this.fee);
       await walletContract.sendTransfer({
         secretKey: key.secretKey,
         seqno: seqno,
         messages: [
           internal({
             to: address,
-            value: amount.toString(),
+            value: amountWithFee.toString(),
             body: `Withdraw, fee: ${this.fee}%`,
             bounce: false,
           })
         ]
       });
       let currentSeqno = seqno;
+      let countWaiting = 0;
       while (currentSeqno == seqno) {
         console.log("waiting for transaction to confirm...");
+        if(countWaiting >= 120){
+          throw new BadRequestException('The TON network is overloaded')
+        }
         await this.sleep(1500);
         currentSeqno = await walletContract.getSeqno();
+        countWaiting++;
       }
     }catch (e) {
       await this.prisma.user.update({
