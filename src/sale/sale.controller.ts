@@ -14,7 +14,7 @@ export class SaleController {
   }
 
   @Post('create')
-  create(@Body() dto: CreateSaleDto, @Request() req: { id: string }){
-    return this.saleService.create(dto, req.id)
+  create(@Body() dto: CreateSaleDto, @Request() req){
+    return this.saleService.create(dto, req.user.id)
   }
 }

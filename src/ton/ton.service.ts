@@ -26,6 +26,9 @@ export class TonService {
     return amount - deduction;
   }
   async sendCoins(amount: number, address: string, userId: string) {
+    if(amount < 0.05){
+      throw new BadRequestException('The minimum amount is 0.05')
+    }
     const user = await this.prisma.user.findUnique({where: {id: userId}})
     if(user.money < amount){
       throw new BadRequestException('Insufficient funds')
@@ -42,26 +45,35 @@ export class TonService {
         money: {decrement: amount}
       }
     })
-    const walletContract = this.client.open(wallet);
-    const seqno = await walletContract.getSeqno();
-    amount = this.subtractPercentage(amount, this.fee);
-    await walletContract.sendTransfer({
-      secretKey: key.secretKey,
-      seqno: seqno,
-      messages: [
-        internal({
-          to: address,
-          value: amount.toString(),
-          body: `Withdraw, fee: ${this.fee}%`,
-          bounce: false,
-        })
-      ]
-    });
-    let currentSeqno = seqno;
-    while (currentSeqno == seqno) {
-      console.log("waiting for transaction to confirm...");
-      await this.sleep(1500);
-      currentSeqno = await walletContract.getSeqno();
+    try {
+      const walletContract = this.client.open(wallet);
+      const seqno = await walletContract.getSeqno();
+      amount = this.subtractPercentage(amount, this.fee);
+      await walletContract.sendTransfer({
+        secretKey: key.secretKey,
+        seqno: seqno,
+        messages: [
+          internal({
+            to: address,
+            value: amount.toString(),
+            body: `Withdraw, fee: ${this.fee}%`,
+            bounce: false,
+          })
+        ]
+      });
+      let currentSeqno = seqno;
+      while (currentSeqno == seqno) {
+        console.log("waiting for transaction to confirm...");
+        await this.sleep(1500);
+        currentSeqno = await walletContract.getSeqno();
+      }
+    }catch (e) {
+      await this.prisma.user.update({
+        where: {id: userId},
+        data: {
+          money: {increment: amount}
+        }
+      })
     }
     //TODO добавлять транзу в бд
   }
