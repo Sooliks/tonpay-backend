@@ -62,7 +62,7 @@ export class TonService {
                         to: address,
                         value: amountWithFee.toFixed(5).toString(),
                         body: `Withdraw, fee: ${this.fee}%. User: @${user.nickname}`,
-                        bounce: false,
+                        bounce: false
                     })
                 ]
             });
@@ -148,7 +148,7 @@ export class TonService {
         try {
             const address = this.ourWalletAddress;
             const transactions = await this.client.getTransactions(address, {
-                limit: 5, lt: Date.now().toString()
+                limit: 50, lt: Date.now().toString()
             });
             for (const transaction of transactions) {
                 try {

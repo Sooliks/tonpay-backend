@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
-import { parse, User, validate } from "@telegram-apps/init-data-node";
+import { parse, validate } from "@telegram-apps/init-data-node";
 import { PrismaService } from "../prisma.service";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";

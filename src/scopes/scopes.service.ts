@@ -21,4 +21,11 @@ export class ScopesService {
       }
     })
   }
+  async getScopes(){
+    return this.prisma.scope.findMany({
+      include: {
+        subScopes: true
+      }
+    })
+  }
 }

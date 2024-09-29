@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Request } from "@nestjs/common";
+import { Body, Controller, Get, Post, Request } from "@nestjs/common";
 import { ScopesService } from './scopes.service';
 import { Roles } from "../decorators/role.decorator";
 import { Role } from "@prisma/client";
@@ -16,5 +16,9 @@ export class ScopesController {
   @Roles(Role.ADMIN, Role.CREATOR)
   async createSubScope(@Body() dto: CreateSubScopeDto) {
     return this.scopesService.createSubScope(dto);
+  }
+  @Get()
+  async getScopes(){
+    return this.scopesService.getScopes();
   }
 }
