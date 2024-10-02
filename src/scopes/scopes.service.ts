@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateScopeDto, CreateSubScopeDto } from "./scopes.dto";
 import { PrismaService } from "../prisma.service";
+import { ScopeType } from "@prisma/client";
 
 @Injectable()
 export class ScopesService {
@@ -9,7 +10,7 @@ export class ScopesService {
     return this.prisma.scope.create({
       data: {
         name: scopeDto.name,
-        type: scopeDto.type
+        type: ScopeType[scopeDto.type]
       }
     })
   }

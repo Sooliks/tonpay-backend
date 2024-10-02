@@ -9,11 +9,13 @@ import { RolesGuard } from "./roles/roles.guard";
 import { ScopesModule } from './scopes/scopes.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { TonModule } from './ton/ton.module';
+import { RolesModule } from "./roles/roles.module";
+import { PrismaService } from "./prisma.service";
 
 @Module({
   imports: [SaleModule, AuthModule, ConfigModule.forRoot({
     isGlobal: true
-  }), ScopesModule, FeedbackModule, TonModule],
+  }), ScopesModule, FeedbackModule, TonModule, RolesModule],
   controllers: [AppController],
   providers: [
     AppService,
@@ -24,7 +26,8 @@ import { TonModule } from './ton/ton.module';
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
-    }
+    },
+    PrismaService
   ]
 })
 export class AppModule {}

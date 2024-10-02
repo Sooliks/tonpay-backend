@@ -53,7 +53,7 @@ model Feedback {
 
 model Scope {
   id        String     @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
+  name      String     @unique
   type      ScopeType
   subScopes SubScope[]
   sales     Sale[]
