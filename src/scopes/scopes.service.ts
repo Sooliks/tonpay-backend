@@ -22,10 +22,13 @@ export class ScopesService {
       }
     })
   }
-  async getScopes(){
+  async getScopes(type?: string){
     return this.prisma.scope.findMany({
       include: {
         subScopes: true
+      },
+      where: {
+        type: ScopeType[type]
       }
     })
   }

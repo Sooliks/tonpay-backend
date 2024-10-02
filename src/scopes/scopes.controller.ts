@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query } from "@nestjs/common";
 import { ScopesService } from './scopes.service';
 import { Roles } from "../decorators/role.decorator";
-import { Role } from "@prisma/client";
+import { Role, ScopeType } from "@prisma/client";
 import { CreateScopeDto, CreateSubScopeDto } from "./scopes.dto";
+import { PublicRoute } from "../decorators/public-route.decorator";
 
 
 @Controller('scopes')
@@ -18,8 +19,9 @@ export class ScopesController {
   async createSubScope(@Body() dto: CreateSubScopeDto) {
     return this.scopesService.createSubScope(dto);
   }
+  @PublicRoute()
   @Get()
-  async getScopes(){
-    return this.scopesService.getScopes();
+  async getScopes(@Query('type') type?: string){
+    return this.scopesService.getScopes(type);
   }
 }
