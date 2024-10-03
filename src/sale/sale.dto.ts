@@ -5,10 +5,6 @@ export class CreateSaleDto {
   @IsNumber()
   price: number
 
-  @Min(1)
-  @IsInt()
-  count?: number
-
   @IsArray()
   product: string[]
 
@@ -17,9 +13,6 @@ export class CreateSaleDto {
 
   @IsString()
   description: string
-
-  @IsMongoId()
-  scopeId: string
 
   @IsMongoId()
   subScopeId: string

@@ -7,8 +7,14 @@ import { CreateSaleDto } from "./sale.dto";
 @Injectable()
 export class SaleService {
   constructor(private readonly prisma: PrismaService) {}
-  findAll() {
-    return this.prisma.sale.findMany()
+  findAll(count: number, userId?: string, skip?: number) {
+    return this.prisma.sale.findMany({
+      where: {
+        userId: userId
+      },
+      take: count,
+      skip: skip
+    })
   }
 
   create(saleDto: CreateSaleDto, userId: string){

@@ -56,7 +56,6 @@ model Scope {
   name      String     @unique
   type      ScopeType
   subScopes SubScope[]
-  sales     Sale[]
 }
 
 enum ScopeType {
@@ -75,18 +74,17 @@ model SubScope {
 }
 
 model Sale {
-  id          String     @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt   DateTime   @default(now())
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      String     @db.ObjectId
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String   @db.ObjectId
   price       Float
-  count       Int?
-  product     String[]   @default([])
-  isPublished Boolean    @default(false)
-  scopeId     String     @db.ObjectId
-  subScopeId  String     @db.ObjectId
-  scope       Scope      @relation(fields: [scopeId], references: [id], onDelete: Cascade)
-  subScope    SubScope   @relation(fields: [subScopeId], references: [id], onDelete: Cascade)
+  product     String[] @default([])
+  isPublished Boolean  @default(false)
+
+  subScopeId String   @db.ObjectId
+  subScope   SubScope @relation(fields: [subScopeId], references: [id], onDelete: Cascade)
+
   adminId     String?    @db.ObjectId
   title       String
   description String

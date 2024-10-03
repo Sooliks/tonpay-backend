@@ -2,18 +2,18 @@ import { Body, Controller, Get, ParseIntPipe, Post, Query, Request } from "@nest
 import { SaleService } from './sale.service';
 import { CreateSaleDto } from "./sale.dto";
 import { PublicRoute } from "../decorators/public-route.decorator";
+import { IsString } from "class-validator";
 
-@Controller('sale')
+@Controller('sales')
 export class SaleController {
   constructor(private readonly saleService: SaleService) {}
 
-  @Get('findall')
-  findAll(@Query('pageNumber', ParseIntPipe) pageNumber: number){
-    console.log(pageNumber)
-    return this.saleService.findAll();
+  @Get()
+  findAll(@Query('count', ParseIntPipe) count: number, @Query('skip', ParseIntPipe) skip?: number, @Query('userId') userId?: string){
+    return this.saleService.findAll(count, userId, skip);
   }
 
-  @Post('create')
+  @Post()
   create(@Body() dto: CreateSaleDto, @Request() req){
     return this.saleService.create(dto, req.user.id)
   }
