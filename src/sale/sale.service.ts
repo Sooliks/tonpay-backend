@@ -20,8 +20,12 @@ export class SaleService {
   create(saleDto: CreateSaleDto, userId: string){
     return this.prisma.sale.create({
       data: {
-        ...saleDto,
-        userId: userId
+        price: Number(saleDto.price),
+        userId: userId,
+        product: saleDto.product,
+        description: saleDto.description,
+        subScopeId: saleDto.subScopeId,
+        title: saleDto.title
       }
     })
   }

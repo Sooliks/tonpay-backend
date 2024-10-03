@@ -1,8 +1,11 @@
 import { IsArray, IsInt, IsMongoId, IsNumber, IsString, Min } from "class-validator";
+import { ParseFloatPipe } from "@nestjs/common";
+import { Transform, Type } from "class-transformer";
 
 export class CreateSaleDto {
-  @Min(0.25)
+  @Transform(({ value }) => parseFloat(value))
   @IsNumber()
+  @Min(0.05)
   price: number
 
   @IsArray()
