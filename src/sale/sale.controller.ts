@@ -9,7 +9,7 @@ export class SaleController {
   constructor(private readonly saleService: SaleService) {}
 
   @Get()
-  findAll(@Query('count', ParseIntPipe) count: number, @Query('skip', ParseIntPipe) skip?: number, @Query('userId') userId?: string){
+  findAll(@Query('count') count: number, @Query('skip') skip?: number, @Query('userId') userId?: string){
     return this.saleService.findAll(count, userId, skip);
   }
 

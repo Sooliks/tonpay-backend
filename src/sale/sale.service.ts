@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 import { Sale } from "@prisma/client";
 import { CreateSaleDto } from "./sale.dto";
@@ -13,11 +13,22 @@ export class SaleService {
         userId: userId
       },
       take: count,
-      skip: skip
+      skip: skip,
+      include: {
+        feedbacks: true
+      }
     })
   }
 
-  create(saleDto: CreateSaleDto, userId: string){
+  async create(saleDto: CreateSaleDto, userId: string){
+    const count = await this.prisma.sale.count({where: {userId: userId}})
+    const user = await this.prisma.user.findUnique({where: {id: userId}})
+    if(!user)throw new BadRequestException('Not found user')
+    if(!user.isPremium){
+      if(count >= 5){
+        throw new BadRequestException('For users without a premium, the number of sales is limited')
+      }
+    }
     return this.prisma.sale.create({
       data: {
         price: Number(saleDto.price),

@@ -11,11 +11,12 @@ import { FeedbackModule } from './feedback/feedback.module';
 import { TonModule } from './ton/ton.module';
 import { RolesModule } from "./roles/roles.module";
 import { PrismaService } from "./prisma.service";
+import { StatsModule } from './stats/stats.module';
 
 @Module({
   imports: [SaleModule, AuthModule, ConfigModule.forRoot({
     isGlobal: true
-  }), ScopesModule, FeedbackModule, TonModule, RolesModule],
+  }), ScopesModule, FeedbackModule, TonModule, RolesModule, StatsModule],
   controllers: [AppController],
   providers: [
     AppService,

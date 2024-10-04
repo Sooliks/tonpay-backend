@@ -74,13 +74,14 @@ model SubScope {
 }
 
 model Sale {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt   DateTime @default(now())
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      String   @db.ObjectId
-  price       Float
-  product     String[] @default([])
-  isPublished Boolean  @default(false)
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String   @db.ObjectId
+  price        Float
+  product      String[] @default([])
+  isPublished  Boolean  @default(false)
+  isModerating Boolean  @default(true)
 
   subScopeId String   @db.ObjectId
   subScope   SubScope @relation(fields: [subScopeId], references: [id], onDelete: Cascade)
@@ -88,7 +89,7 @@ model Sale {
   adminId     String?    @db.ObjectId
   title       String
   description String
-  feedback    Feedback[]
+  feedbacks   Feedback[]
 }
 
 model Chat {
