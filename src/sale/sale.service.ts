@@ -7,15 +7,34 @@ import { CreateSaleDto } from "./sale.dto";
 @Injectable()
 export class SaleService {
   constructor(private readonly prisma: PrismaService) {}
-  findAll(count: number, userId?: string, skip?: number) {
+  findAll(count: number, userId?: string, skip?: number, subScopeId?: string) {
     return this.prisma.sale.findMany({
       where: {
-        userId: userId
+        userId: userId,
+        subScopeId: subScopeId
       },
       take: count,
       skip: skip,
       include: {
-        feedbacks: true
+        feedbacks: true,
+        subScope: {
+          include: {
+            scope: true
+          }
+        }
+      }
+    })
+  }
+  findAllOnModerating() {
+    return this.prisma.sale.findMany({
+      where: { isModerating: true },
+      include: {
+        feedbacks: true,
+        subScope: {
+          include: {
+            scope: true
+          }
+        }
       }
     })
   }
