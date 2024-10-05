@@ -33,6 +33,7 @@ model Transaction {
   confirmed     Boolean         @default(false)
   countTon      Float
   type          TransactionType
+  createdAt     DateTime        @default(now())
 }
 
 enum TransactionType {

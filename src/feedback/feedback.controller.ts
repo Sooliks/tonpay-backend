@@ -8,13 +8,13 @@ import { Role } from "@prisma/client";
 export class FeedbackController {
   constructor(private readonly feedbackService: FeedbackService) {}
   @Post()
-  create(@Body() dto: CreateFeedbackDto, @Request() req: { id: string }){
+  async create(@Body() dto: CreateFeedbackDto, @Request() req: { id: string }){
     return this.feedbackService.create(dto, req.id)
   }
 
   @Delete()
   @Roles(Role.ADMIN, Role.CREATOR)
-  delete(@Body() body: {id: string}){
+  async delete(@Body() body: {id: string}){
     return this.feedbackService.delete(body.id)
   }
 }
