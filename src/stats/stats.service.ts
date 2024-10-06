@@ -15,7 +15,8 @@ export class StatsService {
                 nickname: true,
                 role: true,
                 lastOnline: true,
-                money: true
+                money: true,
+                id: true
             }
         })
     }

@@ -10,15 +10,21 @@ import { Role } from "@prisma/client";
 export class SaleController {
   constructor(private readonly saleService: SaleService) {}
 
-  @Get()
-  async findAll(
-      @Query('count') count: number,
-      @Query('skip') skip?: number,
-      @Query('userId') userId?: string,
-      @Query('subScopeId') subScopeId?: string,
-      @Query('id') id?: string,
-  ){
-    return this.saleService.findAll(count, userId, skip, subScopeId, id);
+  @PublicRoute()
+  @Get('one/:id')
+  async getSaleById(@Param('id') id: string){
+    return this.saleService.getSaleById(id)
+  }
+
+  @PublicRoute()
+  @Get('bysubscope/:id')
+  async getSalesBySubScopeId(@Param('id') id: string){
+    return this.saleService.findAllBySubScopeId(id)
+  }
+
+  @Get('my')
+  async findAllMy(@Request() req){
+    return this.saleService.findAllByUserId(req.user.id);
   }
   @Get('onmoderating')
   @Roles(Role.ADMIN, Role.CREATOR)

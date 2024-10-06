@@ -7,27 +7,23 @@ import { CreateSaleDto } from "./sale.dto";
 @Injectable()
 export class SaleService {
   constructor(private readonly prisma: PrismaService) {}
-  findAll(count: number, userId?: string, skip?: number, subScopeId?: string, id?: string) {
-    if(id){
-      return this.prisma.sale.findUnique({
-        where: {id: id},
-        include: {
-          feedbacks: true,
-          subScope: {
-            include: {
-              scope: true
-            }
+  findAllBySubScopeId(id: string){
+    return this.prisma.sale.findMany({
+      where: { subScopeId: id, isModerating: false, isPublished: true},
+      include: {
+        feedbacks: true,
+        subScope: {
+          include: {
+            scope: true
           }
         }
-      })
-    }
-    return this.prisma.sale.findMany({
-      where: {
-        userId: userId,
-        subScopeId: subScopeId
       },
-      take: count,
-      skip: skip,
+      orderBy: [{id: 'desc'}]
+    })
+  }
+  getSaleById(id: string){
+    return this.prisma.sale.findUnique({
+      where: {id: id},
       include: {
         feedbacks: true,
         subScope: {
@@ -36,6 +32,20 @@ export class SaleService {
           }
         }
       }
+    })
+  }
+  findAllByUserId(userId: string) {
+    return this.prisma.sale.findMany({
+      where: { userId: userId },
+      include: {
+        feedbacks: true,
+        subScope: {
+          include: {
+            scope: true
+          }
+        }
+      },
+      orderBy: [{id: 'desc'}]
     })
   }
   findAllOnModerating() {
