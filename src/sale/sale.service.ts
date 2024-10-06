@@ -7,7 +7,20 @@ import { CreateSaleDto } from "./sale.dto";
 @Injectable()
 export class SaleService {
   constructor(private readonly prisma: PrismaService) {}
-  findAll(count: number, userId?: string, skip?: number, subScopeId?: string) {
+  findAll(count: number, userId?: string, skip?: number, subScopeId?: string, id?: string) {
+    if(id){
+      return this.prisma.sale.findUnique({
+        where: {id: id},
+        include: {
+          feedbacks: true,
+          subScope: {
+            include: {
+              scope: true
+            }
+          }
+        }
+      })
+    }
     return this.prisma.sale.findMany({
       where: {
         userId: userId,
@@ -55,7 +68,8 @@ export class SaleService {
         product: saleDto.product,
         description: saleDto.description,
         subScopeId: saleDto.subScopeId,
-        title: saleDto.title
+        title: saleDto.title,
+        currency: saleDto.currency ? Number(saleDto.currency) : undefined
       }
     })
   }

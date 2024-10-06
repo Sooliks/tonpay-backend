@@ -11,8 +11,14 @@ export class SaleController {
   constructor(private readonly saleService: SaleService) {}
 
   @Get()
-  async findAll(@Query('count') count: number, @Query('skip') skip?: number, @Query('userId') userId?: string, @Query('subScopeId') subScopeId?: string){
-    return this.saleService.findAll(count, userId, skip, subScopeId);
+  async findAll(
+      @Query('count') count: number,
+      @Query('skip') skip?: number,
+      @Query('userId') userId?: string,
+      @Query('subScopeId') subScopeId?: string,
+      @Query('id') id?: string,
+  ){
+    return this.saleService.findAll(count, userId, skip, subScopeId, id);
   }
   @Get('onmoderating')
   @Roles(Role.ADMIN, Role.CREATOR)

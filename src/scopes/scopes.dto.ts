@@ -1,4 +1,4 @@
-import { IsEnum, IsMongoId, IsString } from "class-validator";
+import { IsBoolean, IsEnum, IsMongoId, IsString } from "class-validator";
 import { ScopeType } from "@prisma/client";
 export class CreateScopeDto {
   @IsString()
@@ -13,4 +13,7 @@ export class CreateSubScopeDto {
 
   @IsMongoId()
   scopeId: string
+
+  @IsBoolean()
+  isCurrency: boolean
 }

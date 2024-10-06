@@ -18,7 +18,8 @@ export class ScopesService {
     return this.prisma.subScope.create({
       data: {
         name: scopeDto.name,
-        scopeId: scopeDto.scopeId
+        scopeId: scopeDto.scopeId,
+        isCurrency: scopeDto.isCurrency
       }
     })
   }

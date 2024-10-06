@@ -1,4 +1,4 @@
-import { IsArray, IsInt, IsMongoId, IsNumber, IsString, Min } from "class-validator";
+import { IsArray, IsInt, IsMongoId, IsNumber, IsOptional, IsString, Min } from "class-validator";
 import { ParseFloatPipe } from "@nestjs/common";
 import { Transform, Type } from "class-transformer";
 
@@ -19,6 +19,12 @@ export class CreateSaleDto {
 
   @IsMongoId()
   subScopeId: string
+
+  @IsOptional()
+  @Transform(({ value }) => parseFloat(value))
+  @IsNumber()
+  @Min(0.05)
+  currency?: number
 }
 
 export type UpdateSaleDto = Partial<CreateSaleDto>;

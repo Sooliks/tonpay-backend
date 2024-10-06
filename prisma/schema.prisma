@@ -67,11 +67,12 @@ enum ScopeType {
 }
 
 model SubScope {
-  id      String @id @default(auto()) @map("_id") @db.ObjectId
-  scope   Scope  @relation(fields: [scopeId], references: [id], onDelete: Cascade)
-  scopeId String @db.ObjectId
-  name    String
-  sales   Sale[]
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  scope      Scope   @relation(fields: [scopeId], references: [id], onDelete: Cascade)
+  scopeId    String  @db.ObjectId
+  name       String
+  sales      Sale[]
+  isCurrency Boolean @default(false)
 }
 
 model Sale {
@@ -91,6 +92,8 @@ model Sale {
   title       String
   description String
   feedbacks   Feedback[]
+
+  currency Float?
 }
 
 model Chat {
