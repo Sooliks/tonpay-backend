@@ -23,6 +23,7 @@ model User {
   money        Float         @default(0)
   transactions Transaction[]
   lastOnline   DateTime      @default(now())
+  photoUrl     String?
 }
 
 model Transaction {

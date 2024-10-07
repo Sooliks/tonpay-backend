@@ -29,16 +29,43 @@ export class AuthService {
       throw new UnauthorizedException()
     }
   }
+  async getAvatarUrl(telegramId: number): Promise<string | null>{
+    try {
+      const botToken = this.configService.get<string>('TELEGRAMBOT_TOKEN');
+      const response = await fetch(`https://api.telegram.org/bot${botToken}/getUserProfilePhotos?user_id=${telegramId}`);
+      const data = await response.json();
+      if (data.ok && data.result.total_count > 0) {
+        const fileId = data.result.photos[0][0].file_id;
+        const fileResponse = await fetch(`https://api.telegram.org/bot${botToken}/getFile?file_id=${fileId}`);
+        const fileData = await fileResponse.json();
+        if (fileData.ok) {
+          const filePath = fileData.result.file_path;
+          const photoUrl = `https://api.telegram.org/file/bot${botToken}/${filePath}`;
+          console.log('User Avatar URL:', photoUrl);
+          return photoUrl;
+        } else {
+          throw new Error('Не удалось получить file_path');
+        }
+      } else {
+        console.log('Аватарки не найдены.');
+        return null;
+      }
+    } catch (error) {
+      console.error('Ошибка при получении аватарки:', error);
+    }
+  };
   async findOrCreateUser(telegramId: number, nickname: string, refId?: string) {
     let user = await this.prisma.user.findUnique({
       where: {telegramId: telegramId}
     })
     if (!user) {
+      const avatarUrl = await this.getAvatarUrl(telegramId) || undefined;
       user = await this.prisma.user.create({
         data: {
           telegramId: telegramId,
           nickname: nickname,
-          refId: refId
+          refId: refId,
+          photoUrl: avatarUrl
         }
       })
     }

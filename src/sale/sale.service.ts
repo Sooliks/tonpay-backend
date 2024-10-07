@@ -16,7 +16,8 @@ export class SaleService {
           include: {
             scope: true
           }
-        }
+        },
+        user: true
       },
       orderBy: [{id: 'desc'}]
     })
@@ -30,7 +31,8 @@ export class SaleService {
           include: {
             scope: true
           }
-        }
+        },
+        user: true
       }
     })
   }
@@ -43,7 +45,8 @@ export class SaleService {
           include: {
             scope: true
           }
-        }
+        },
+        user: true
       },
       orderBy: [{id: 'desc'}]
     })
@@ -57,7 +60,8 @@ export class SaleService {
           include: {
             scope: true
           }
-        }
+        },
+        user: true
       }
     })
   }
