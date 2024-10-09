@@ -15,6 +15,6 @@ export class AuthController {
   }
   @Get("me")
   async getCurrentUser(@Request() req) {
-    return await this.authService.getUserById(req.user.id)
+    return await this.authService.getUserById(req.user.id, req.headers.initdata)
   }
 }

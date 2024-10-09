@@ -51,6 +51,6 @@ export class SaleController {
   @Delete()
   @Roles(Role.ADMIN, Role.CREATOR)
   async delete(@Body() dto: DeleteSaleForAdminDto){
-    return this.saleService.delete(dto)
+    return this.saleService.delete(dto);
   }
 }

@@ -71,16 +71,20 @@ export class AuthService {
     }
     return user
   }
-  async getUserById(id: string) {
+  async getUserById(id: string, initData: string) {
     try {
       const user = await this.prisma.user.findUnique({ where: { id: id } })
       if (!user) {
         throw new NotFoundException()
       }
       const currentDate = new Date();
+      const parsedData = parse(initData)
       await this.prisma.user.update({
         where: {id: id},
-        data: {lastOnline: currentDate}
+        data: {
+          lastOnline: currentDate,
+          photoUrl: await this.getAvatarUrl(parsedData.user.id)
+        }
       })
       return user
     }catch (e) {
