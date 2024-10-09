@@ -1,19 +1,16 @@
 import {
   Body,
-  Controller,
+  Controller, Delete,
   Get,
   Param,
-  ParseIntPipe,
   Post,
-  Query,
   Request,
   UploadedFiles,
   UseInterceptors
 } from "@nestjs/common";
 import { SaleService } from './sale.service';
-import { CreateSaleDto } from "./sale.dto";
+import { CreateSaleDto, DeleteSaleForAdminDto } from "./sale.dto";
 import { PublicRoute } from "../decorators/public-route.decorator";
-import { IsString } from "class-validator";
 import { Roles } from "../decorators/role.decorator";
 import { Role } from "@prisma/client";
 import { FilesInterceptor } from "@nestjs/platform-express";
@@ -49,5 +46,11 @@ export class SaleController {
   async create(@Body() dto: CreateSaleDto, @Request() req, @UploadedFiles() files?: Array<Express.Multer.File>){
     dto.files = files;
     return this.saleService.create(dto, req.user.id)
+  }
+
+  @Delete()
+  @Roles(Role.ADMIN, Role.CREATOR)
+  async delete(@Body() dto: DeleteSaleForAdminDto){
+    return this.saleService.delete(dto)
   }
 }

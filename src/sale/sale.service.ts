@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
-import { CreateSaleDto } from "./sale.dto";
+import { CreateSaleDto, DeleteSaleForAdminDto } from "./sale.dto";
 import { CloudinaryService } from "../cloudinary/cloudinary.service";
 @Injectable()
 export class SaleService {
@@ -64,6 +64,16 @@ export class SaleService {
     })
   }
 
+  async delete(dto: DeleteSaleForAdminDto){
+    const sale = await this.prisma.sale.findUnique({where: {id: dto.id}})
+    if(sale.screenUrls.length > 0){
+      sale.screenUrls.map(async screen => {
+        await this.cloudinary.deleteImage(screen)
+      })
+    }
+    return this.prisma.sale.delete({where: {id: dto.id}})
+  }
+
   async create(saleDto: CreateSaleDto, userId: string){
     const count = await this.prisma.sale.count({where: {userId: userId}})
     const user = await this.prisma.user.findUnique({where: {id: userId}})
@@ -84,7 +94,12 @@ export class SaleService {
         currency: saleDto.currency ? Number(saleDto.currency) : undefined
       }
     })
-    saleDto.files.map((image, index)=>this.cloudinary.uploadImage(image, `/tonpay/sale/${sale.id}/${index}`))
+    const screenUrls: string[] = []
+    saleDto.files.map(async (image, index)=> {
+      const res =  await this.cloudinary.uploadImage(image, `/tonpay/sale/${sale.id}`)
+      screenUrls.push(`${res.public_id}`)
+    })
+    if(screenUrls.length > 0) await this.prisma.sale.update({where: {id: sale.id}, data: {screenUrls: screenUrls}})
     return sale;
   }
 }

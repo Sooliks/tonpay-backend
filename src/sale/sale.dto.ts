@@ -30,3 +30,11 @@ export class CreateSaleDto {
   files?: Express.Multer.File[];
 }
 
+export class DeleteSaleForAdminDto {
+  @IsMongoId()
+  id: string
+
+  @IsString()
+  reason?: string
+}
+

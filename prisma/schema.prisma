@@ -95,7 +95,7 @@ model Sale {
   feedbacks   Feedback[]
 
   currency   Float?
-  screenUrls String[]
+  screenUrls String[] @default([])
 }
 
 model Chat {
