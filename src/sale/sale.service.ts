@@ -1,12 +1,10 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
-import { Sale } from "@prisma/client";
 import { CreateSaleDto } from "./sale.dto";
-
-
+import { CloudinaryService } from "../cloudinary/cloudinary.service";
 @Injectable()
 export class SaleService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private readonly cloudinary: CloudinaryService) {}
   findAllBySubScopeId(id: string){
     return this.prisma.sale.findMany({
       where: { subScopeId: id, isModerating: false, isPublished: true},
@@ -75,7 +73,7 @@ export class SaleService {
         throw new BadRequestException('For users without a premium, the number of sales is limited')
       }
     }
-    return this.prisma.sale.create({
+    const sale = await this.prisma.sale.create({
       data: {
         price: Number(saleDto.price),
         userId: userId,
@@ -86,5 +84,7 @@ export class SaleService {
         currency: saleDto.currency ? Number(saleDto.currency) : undefined
       }
     })
+    saleDto.files.map((image, index)=>this.cloudinary.uploadImage(image, `/tonpay/sale/${sale.id}/${index}`))
+    return sale;
   }
 }

@@ -94,7 +94,8 @@ model Sale {
   description String
   feedbacks   Feedback[]
 
-  currency Float?
+  currency   Float?
+  screenUrls String[]
 }
 
 model Chat {

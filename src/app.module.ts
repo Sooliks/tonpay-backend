@@ -12,11 +12,12 @@ import { TonModule } from './ton/ton.module';
 import { RolesModule } from "./roles/roles.module";
 import { PrismaService } from "./prisma.service";
 import { StatsModule } from './stats/stats.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [SaleModule, AuthModule, ConfigModule.forRoot({
     isGlobal: true
-  }), ScopesModule, FeedbackModule, TonModule, RolesModule, StatsModule],
+  }), ScopesModule, FeedbackModule, TonModule, RolesModule, StatsModule, CloudinaryModule],
   controllers: [AppController],
   providers: [
     AppService,

@@ -1,7 +1,5 @@
-import { IsArray, IsInt, IsMongoId, IsNumber, IsOptional, IsString, Min } from "class-validator";
-import { ParseFloatPipe } from "@nestjs/common";
-import { Transform, Type } from "class-transformer";
-
+import { ArrayMaxSize, IsArray, IsMongoId, IsNumber, IsOptional, IsString, Min } from "class-validator";
+import { Transform } from "class-transformer";
 export class CreateSaleDto {
   @Transform(({ value }) => parseFloat(value))
   @IsNumber()
@@ -25,6 +23,10 @@ export class CreateSaleDto {
   @IsNumber()
   @Min(0.05)
   currency?: number
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(3, { message: 'You can upload up to 3 images.' })
+  files?: Express.Multer.File[];
 }
 
-export type UpdateSaleDto = Partial<CreateSaleDto>;

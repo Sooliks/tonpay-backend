@@ -1,10 +1,22 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Query, Request } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Query,
+  Request,
+  UploadedFiles,
+  UseInterceptors
+} from "@nestjs/common";
 import { SaleService } from './sale.service';
 import { CreateSaleDto } from "./sale.dto";
 import { PublicRoute } from "../decorators/public-route.decorator";
 import { IsString } from "class-validator";
 import { Roles } from "../decorators/role.decorator";
 import { Role } from "@prisma/client";
+import { FilesInterceptor } from "@nestjs/platform-express";
 
 @Controller('sales')
 export class SaleController {
@@ -33,7 +45,9 @@ export class SaleController {
   }
 
   @Post()
-  async create(@Body() dto: CreateSaleDto, @Request() req){
+  @UseInterceptors(FilesInterceptor('files', 3))
+  async create(@Body() dto: CreateSaleDto, @Request() req, @UploadedFiles() files?: Array<Express.Multer.File>){
+    dto.files = files;
     return this.saleService.create(dto, req.user.id)
   }
 }
