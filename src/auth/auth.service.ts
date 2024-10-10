@@ -40,8 +40,7 @@ export class AuthService {
         const fileData = await fileResponse.json();
         if (fileData.ok) {
           const filePath = fileData.result.file_path;
-          const photoUrl = `https://api.telegram.org/file/bot${botToken}/${filePath}`;
-          return photoUrl;
+          return `https://api.telegram.org/file/bot${botToken}/${filePath}`;
         } else {
           throw new Error('Не удалось получить file_path');
         }

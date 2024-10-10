@@ -1,9 +1,6 @@
 import { Body, Controller, Get, Post, Request } from "@nestjs/common";
 import { AuthService } from './auth.service';
 import { PublicRoute } from "../decorators/public-route.decorator";
-import { Role } from "@prisma/client";
-import { Roles } from "../decorators/role.decorator";
-
 
 @Controller('auth')
 export class AuthController {

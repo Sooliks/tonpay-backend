@@ -1,5 +1,4 @@
-import { IsBoolean, IsEnum, IsMongoId, IsString } from "class-validator";
-import { ScopeType } from "@prisma/client";
+import { IsBoolean, IsMongoId, IsString } from "class-validator";
 export class CreateScopeDto {
   @IsString()
   name: string
