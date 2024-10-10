@@ -6,6 +6,7 @@ export class CreateSaleDto {
   @Min(0.05)
   price: number
 
+  @IsOptional()
   @IsArray()
   product: string[]
 

@@ -94,11 +94,11 @@ export class SaleService {
         currency: saleDto.currency ? Number(saleDto.currency) : undefined
       }
     })
-    const screenUrls: string[] = []
-    saleDto.files.map(async (image, index)=> {
-      const res =  await this.cloudinary.uploadImage(image, `/tonpay/sale/${sale.id}`)
-      screenUrls.push(`${res.public_id}`)
-    })
+    let screenUrls: string[] = []
+    for (let i = 0; i < saleDto.files.length; i++){
+      const res =  await this.cloudinary.uploadImage(saleDto.files[i], `/tonpay/sale/${sale.id}`)
+      screenUrls = [...screenUrls, res.public_id]
+    }
     if(screenUrls.length > 0) await this.prisma.sale.update({where: {id: sale.id}, data: {screenUrls: screenUrls}})
     return sale;
   }
