@@ -87,6 +87,7 @@ export class TonService {
             })
             throw new BadRequestException('The TON network is overloaded')
         }
+        //TODO тут добавление транзы в бд надо
         /*try {
           const transactions = await this.client.getTransactions(this.ourWalletAddress, { limit: 5 });
           const transaction = transactions.find(tx => {
@@ -141,14 +142,13 @@ export class TonService {
         return hashHex
     }
     sanitizeObjectId(oid: string): string {
-        // Удаляем все символы, кроме 0-9, a-f и нулевые символы
         return oid.replace(/[\x00]/g, '').replace(/[^0-9a-f]/g, '');
     }
     async checkNewTransactions() {
         try {
             const address = this.ourWalletAddress;
             const transactions = await this.client.getTransactions(address, {
-                limit: 50, lt: Date.now().toString()
+                limit: 5, lt: Date.now().toString()
             });
             for (const transaction of transactions) {
                 try {
