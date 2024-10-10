@@ -8,7 +8,7 @@ export class CreateSaleDto {
 
   @IsOptional()
   @IsArray()
-  product: string[]
+  product?: string[]
 
   @IsString()
   title: string
