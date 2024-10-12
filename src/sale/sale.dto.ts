@@ -35,6 +35,7 @@ export class DeleteSaleForAdminDto {
   @IsMongoId()
   id: string
 
+  @IsOptional()
   @IsString()
   reason?: string
 }
