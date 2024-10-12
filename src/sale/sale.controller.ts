@@ -53,4 +53,10 @@ export class SaleController {
   async delete(@Body() dto: DeleteSaleForAdminDto){
     return this.saleService.delete(dto);
   }
+
+  @Post('publish/:id')
+  @Roles(Role.ADMIN, Role.CREATOR)
+  async publish(@Param('id') id: string){
+    return this.saleService.publish(id);
+  }
 }

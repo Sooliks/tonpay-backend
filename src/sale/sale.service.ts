@@ -102,4 +102,14 @@ export class SaleService {
     if(screenUrls.length > 0) await this.prisma.sale.update({where: {id: sale.id}, data: {screenUrls: screenUrls}})
     return sale;
   }
+
+  async publish(idSale: string){
+    return this.prisma.sale.update({
+      where: {id: idSale},
+      data: {
+        isModerating: false,
+        isPublished: true
+      }
+    })
+  }
 }
