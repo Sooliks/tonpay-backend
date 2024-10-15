@@ -148,7 +148,7 @@ export class TonService {
         try {
             const address = this.ourWalletAddress;
             const transactions = await this.client.getTransactions(address, {
-                limit: 5, lt: Date.now().toString()
+                limit: 50, lt: Date.now().toString()
             });
             for (const transaction of transactions) {
                 try {
