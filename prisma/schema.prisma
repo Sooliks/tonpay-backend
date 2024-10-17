@@ -108,6 +108,8 @@ model Order {
   customer    User     @relation(fields: [customerId], references: [id], onDelete: Cascade)
   customerId  String   @db.ObjectId
   isCompleted Boolean  @default(false)
+  amount      Float
+  product     String?
 }
 
 model Chat {
