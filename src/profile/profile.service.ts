@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from "../prisma.service";
+import { FeedbackService } from "../feedback/feedback.service";
 
 
 @Injectable()
 export class ProfileService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(private readonly prisma: PrismaService, private readonly feedbackService: FeedbackService) {}
     async getUserById(id: string){
-        return this.prisma.user.findUnique({
+        let user: any = await this.prisma.user.findUnique({
             where: {id: id},
             select: {
                 id: true,
@@ -19,5 +20,18 @@ export class ProfileService {
                 nickname: true
             }
         })
+        const feedbacks = await this.prisma.feedback.findMany({
+            where: {
+                sale: {
+                    userId: id
+                }
+            },
+            include: {sale: true}
+        })
+        if (feedbacks.length > 0) {
+            return {...user, rate: await this.feedbackService.getAverageRating(feedbacks)};
+        } else {
+            return {...user, rate: undefined};
+        }
     }
 }

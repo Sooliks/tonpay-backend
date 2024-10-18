@@ -25,6 +25,7 @@ model User {
   lastOnline   DateTime      @default(now())
   photoUrl     String?
   orders       Order[]
+  lastUpSales  DateTime?
 }
 
 model Transaction {
@@ -98,6 +99,8 @@ model Sale {
   currency   Float?
   screenUrls String[] @default([])
   orders     Order[]
+
+  lastUp DateTime @default(now())
 }
 
 model Order {

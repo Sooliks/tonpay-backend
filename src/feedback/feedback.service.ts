@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 import { CreateFeedbackDto } from "./feedback.dto";
+import { Feedback } from "@prisma/client";
 
 @Injectable()
 export class FeedbackService {
@@ -16,10 +17,15 @@ export class FeedbackService {
       data: { ...feedbackDto, userId: userId }
     })
   }
-
   async delete(feedbackId: string) {
     return this.prisma.feedback.delete({
       where: {id: feedbackId}
     })
+  }
+  async getAverageRating(feedbacks: Feedback[]){
+    const ratings = feedbacks.map(feedback => feedback.rate); // Предполагаем, что рейтинг хранится в поле `rating`
+    const totalRatings = ratings.reduce((sum, rating) => sum + rating, 0);
+    const averageRating = totalRatings / feedbacks.length;
+    return Math.round(averageRating * 10) / 10;
   }
 }

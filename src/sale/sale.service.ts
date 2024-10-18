@@ -5,7 +5,7 @@ import { CloudinaryService } from "../cloudinary/cloudinary.service";
 @Injectable()
 export class SaleService {
   constructor(private readonly prisma: PrismaService, private readonly cloudinary: CloudinaryService) {}
-  findAllBySubScopeId(id: string){
+  findAllBySubScopeId(id: string, count: number, skip?: number){
     return this.prisma.sale.findMany({
       where: { subScopeId: id, isModerating: false, isPublished: true},
       include: {
@@ -17,7 +17,9 @@ export class SaleService {
         },
         user: true
       },
-      orderBy: [{id: 'desc'}]
+      orderBy: [{id: 'desc'}],
+      take: Number(count),
+      skip: skip ? Number(skip) : undefined
     })
   }
   getSaleById(id: string){

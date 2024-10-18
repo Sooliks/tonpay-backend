@@ -3,7 +3,7 @@ import {
   Controller, Delete,
   Get,
   Param,
-  Post,
+  Post, Query,
   Request,
   UploadedFiles,
   UseInterceptors
@@ -27,8 +27,8 @@ export class SaleController {
 
   @PublicRoute()
   @Get('bysubscope/:id')
-  async getSalesBySubScopeId(@Param('id') id: string){
-    return this.saleService.findAllBySubScopeId(id)
+  async getSalesBySubScopeId(@Param('id') id: string, @Query('count') count: number, @Query('skip') skip?: number){
+    return this.saleService.findAllBySubScopeId(id, count, skip)
   }
 
   @Get('my')
