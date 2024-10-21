@@ -10,21 +10,15 @@ import { Server, Socket } from "socket.io";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 
-@WebSocketGateway({cors: {origin: "*"}})
+@WebSocketGateway({cors: {origin: "*"}, namespace: 'notifications'})
 export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
   constructor(private readonly jwtService: JwtService, private readonly configService: ConfigService) {}
-
-  private connectedUsers: Map<string, string> = new Map();
-
-
-  // Логика отправки уведомлений всем клиентам
+  private readonly connectedUsers: Map<string, string> = new Map();
   sendNotificationToAll(message: string) {
     this.server.emit('notification', { message });
   }
-
-  // Логика отправки уведомления конкретному пользователю
   sendNotificationToUser(userId: string, message: string) {
     const socketId = this.connectedUsers.get(userId);
     if (socketId) {
@@ -47,14 +41,12 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
       client.disconnect();
     }
   }
-  handleDisconnect(client: Socket) {
+  async handleDisconnect(client: Socket) {
     const userId = [...this.connectedUsers.entries()].find(([, socketId]) => socketId === client.id)?.[0];
     if (userId) {
       this.connectedUsers.delete(userId);
     }
   }
-
-  // Пример подписки на событие
   @SubscribeMessage('customEvent')
   handleCustomEvent(@MessageBody() data: any) {
     // Обработка события
