@@ -129,8 +129,6 @@ model UserChat {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, chatId])
 }
 
 model Message {
@@ -140,8 +138,9 @@ model Message {
   chatId    String   @db.ObjectId
   senderId  String   @db.ObjectId
 
-  chat   Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  sender User @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  chat    Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender  User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  screens String[] @default([])
 }
 
 enum Role {

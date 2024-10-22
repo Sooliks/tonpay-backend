@@ -17,11 +17,13 @@ import { OrdersModule } from './orders/orders.module';
 import { ProfileModule } from './profile/profile.module';
 import { MoneyModule } from './money/money.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { TelegramBotModule } from './telegram-bot/telegram-bot.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [SaleModule, AuthModule, ConfigModule.forRoot({
     isGlobal: true
-  }), ScopesModule, FeedbackModule, TonModule, RolesModule, StatsModule, CloudinaryModule, OrdersModule, ProfileModule, MoneyModule, NotificationsModule],
+  }), ScopesModule, FeedbackModule, TonModule, RolesModule, StatsModule, CloudinaryModule, OrdersModule, ProfileModule, MoneyModule, NotificationsModule, TelegramBotModule, ChatModule],
   controllers: [AppController],
   providers: [
     AppService,

@@ -10,4 +10,7 @@ export class NotificationsService {
     async notifyUser(userId: string, message: string) {
         this.notificationsGateway.sendNotificationToUser(userId, message);
     }
+    async getCurrentOnline(){
+        return this.notificationsGateway.getCurrentOnline()
+    }
 }

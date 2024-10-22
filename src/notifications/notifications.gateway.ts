@@ -27,6 +27,9 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
       console.log(`User ${userId} not connected`);
     }
   }
+  getCurrentOnline(){
+    return this.connectedUsers.size;
+  }
   async handleConnection(@ConnectedSocket() client: Socket) {
     try {
       const token = client.handshake.auth.token;
@@ -36,6 +39,8 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
             secret: this.configService.get<string>('JWT_CONSTANTS')
           }
       )
+      if(this.connectedUsers.has(payload.id))return
+
       this.connectedUsers.set(payload.id, client.id);
     } catch (error) {
       client.disconnect();
