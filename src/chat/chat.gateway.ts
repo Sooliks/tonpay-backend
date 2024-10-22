@@ -1,9 +1,8 @@
-import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
+import { ConnectedSocket, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { ChatService } from './chat.service';
 import { Server, Socket } from "socket.io";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
-import { CreateMessageDto } from "./chat.dto";
 
 @WebSocketGateway({cors: {origin: "*"}, namespace: 'chat'})
 export class ChatGateway {

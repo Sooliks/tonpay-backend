@@ -5,6 +5,7 @@ import { JwtModule } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../prisma.service";
 import { ChatController } from "./chat.controller";
+import { CloudinaryService } from "../cloudinary/cloudinary.service";
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { ChatController } from "./chat.controller";
       signOptions: { expiresIn: "1h" },
     })
   ],
-  providers: [ChatGateway, ChatService, ConfigService, PrismaService],
+  providers: [ChatGateway, ChatService, ConfigService, PrismaService, CloudinaryService],
   controllers: [ChatController]
 })
 export class ChatModule {}
