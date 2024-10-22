@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from "../prisma.service";
 import { FeedbackService } from "../feedback/feedback.service";
+import { NotificationsService } from "../notifications/notifications.service";
 
 
 @Injectable()
 export class ProfileService {
-    constructor(private readonly prisma: PrismaService, private readonly feedbackService: FeedbackService) {}
+    constructor(private readonly prisma: PrismaService, private readonly feedbackService: FeedbackService, private readonly notificationsService: NotificationsService) {}
     async getUserById(id: string){
         let user: any = await this.prisma.user.findUnique({
             where: {id: id},
@@ -29,6 +30,8 @@ export class ProfileService {
             },
             include: {sale: true}
         })
+        const connectedUsers = await this.notificationsService.getConnectedUsers()
+        user = {...user, isOnline: connectedUsers.has(user.id)}
         if (feedbacks.length > 0) {
             return {...user, rate: await this.feedbackService.getAverageRating(feedbacks)};
         } else {

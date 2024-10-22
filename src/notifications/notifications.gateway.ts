@@ -27,8 +27,8 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
       console.log(`User ${userId} not connected`);
     }
   }
-  getCurrentOnline(){
-    return this.connectedUsers.size;
+  getConnectedUsers(){
+    return this.connectedUsers;
   }
   async handleConnection(@ConnectedSocket() client: Socket) {
     try {

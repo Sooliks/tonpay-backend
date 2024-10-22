@@ -3,6 +3,8 @@ import { JwtModule } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import { NotificationsService } from "./notifications.service";
 import { NotificationsGateway } from "./notifications.gateway";
+import { TelegramBotService } from "../telegram-bot/telegram-bot.service";
+import { PrismaService } from "../prisma.service";
 
 @Module({
   imports: [
@@ -12,7 +14,7 @@ import { NotificationsGateway } from "./notifications.gateway";
       signOptions: { expiresIn: "1h" },
     })
   ],
-  providers: [NotificationsGateway, NotificationsService, ConfigService],
+  providers: [NotificationsGateway, NotificationsService, ConfigService, TelegramBotService, PrismaService],
   exports: [NotificationsService]
 })
 export class NotificationsModule {}
