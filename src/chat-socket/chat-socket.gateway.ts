@@ -1,14 +1,21 @@
-import { ConnectedSocket, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
-import { ChatService } from './chat.service';
+import {
+  ConnectedSocket,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  WebSocketGateway,
+  WebSocketServer
+} from "@nestjs/websockets";
+import { ChatSocketService } from './chat-socket.service';
 import { Server, Socket } from "socket.io";
-import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
+import { JwtService } from "@nestjs/jwt";
+import { Message } from "@prisma/client";
 
 @WebSocketGateway({cors: {origin: "*"}, namespace: 'chat'})
-export class ChatGateway {
+export class ChatSocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
-  constructor(private readonly chatService: ChatService, private readonly configService: ConfigService, private readonly jwtService: JwtService) {}
+  constructor(private readonly configService: ConfigService, private readonly jwtService: JwtService) {}
   private readonly connectedUsers: Map<string, string> = new Map();
   async handleConnection(@ConnectedSocket() client: Socket) {
     try {
@@ -26,9 +33,15 @@ export class ChatGateway {
       this.connectedUsers.delete(userId);
     }
   }
-  @SubscribeMessage('joinRoom')
-  handleJoinRoom(client: Socket, room: string): void {
-    client.join(room);
-    console.log(`Client ${client.id} joined room: ${room}`);
+
+  sendMessageToUser(userId: string, message: Message) {
+    const socketId = this.connectedUsers.get(userId);
+    if (socketId) {
+      this.server.to(socketId).emit('chat', { message });
+    } else {
+      console.log(`User ${userId} not connected`);
+    }
   }
+
+
 }

@@ -4,10 +4,12 @@ import { CreateMessageDto } from "./chat.dto";
 import { CloudinaryService } from "../cloudinary/cloudinary.service";
 import { Chat, Message } from "@prisma/client";
 import { NotificationsService } from "../notifications/notifications.service";
+import { ChatSocketService } from "../chat-socket/chat-socket.service";
+
 
 @Injectable()
 export class ChatService {
-    constructor(private readonly prisma: PrismaService, private readonly cloudinary: CloudinaryService, private readonly notificationsService: NotificationsService) {}
+    constructor(private readonly prisma: PrismaService, private readonly cloudinary: CloudinaryService, private readonly notificationsService: NotificationsService, private readonly chatSocketService: ChatSocketService) {}
 
     async createMessage(dto: CreateMessageDto) {
         if(!dto.message && dto.files.length === 0){
@@ -66,6 +68,7 @@ export class ChatService {
         if(!connectedUsers.has(dto.recipientId)){
             await this.notificationsService.notifyUser(dto.recipientId, `You have received a new message from @${user.nickname}: ${message.content || 'File'}`, true)
         }
+        this.chatSocketService.sendMessageToUser(dto.recipientId, message)
         return message;
     }
     async getUserChats(userId: string) {
