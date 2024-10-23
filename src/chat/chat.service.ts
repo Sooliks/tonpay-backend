@@ -11,13 +11,22 @@ export class ChatService {
     async createMessage(dto: CreateMessageDto) {
         let chat: Chat = await this.prisma.chat.findFirst({
             where: {
-                users: {
-                    every: {
-                        userId: {
-                            in: [dto.senderId, dto.recipientId],
-                        },
+                AND: [
+                    {
+                        users: {
+                            some: {
+                                userId: dto.senderId,
+                            }
+                        }
                     },
-                },
+                    {
+                        users: {
+                            some: {
+                                userId: dto.recipientId,
+                            }
+                        }
+                    }
+                ]
             },
             include: {
                 users: true
@@ -41,11 +50,80 @@ export class ChatService {
             },
         });
         let screenUrls: string[] = []
+        if(dto.files)
         for (let i = 0; i < dto.files.length; i++){
             const res =  await this.cloudinary.uploadImage(dto.files[i], `/tonpay/messages/${message.id}`)
             screenUrls = [...screenUrls, res.public_id]
         }
         if(screenUrls.length > 0) message = await this.prisma.message.update({where: {id: message.id}, data: {screens: screenUrls}})
         return message;
+    }
+    async getUserChats(userId: string) {
+        // Находим все чаты, в которых участвует пользователь
+        const userChats = await this.prisma.chat.findMany({
+            where: {
+                users: {
+                    some: {
+                        userId: userId, // проверяем, что пользователь есть в чате
+                    },
+                },
+            },
+            include: {
+                users: {
+                    include: {
+                        user: true, // получаем информацию о пользователях
+                    },
+                },
+                messages: {
+                    take: 1, // берем последнее сообщение
+                    orderBy: {
+                        createdAt: 'desc', // сортируем по дате создания
+                    },
+                    include: {
+                        sender: {
+                            select: {
+                                photoUrl: true,
+                                nickname: true,
+                                id: true
+                            }
+                        }
+                    }
+                },
+            },
+        });
+        // Возвращаем найденные чаты
+        return userChats.map((chat) => ({
+            id: chat.id,
+            users: chat.users.map((userChat) => userChat.user), // список пользователей
+            lastMessage: chat.messages[0], // последнее сообщение
+        }));
+    }
+    async getMessages(chatId: string, take: number, skip: number){
+        console.log(chatId)
+        const chat = await this.prisma.chat.findUnique({
+            where: {id: chatId},
+            include: {
+                users: {
+                    include: {
+                        user: true, // получаем информацию о пользователях
+                    },
+                },
+                messages: {
+                    include: {
+                        sender: {
+                            select:
+                                {photoUrl: true, nickname: true, id: true}
+                        }
+                    },
+                    take: Number(take),
+                    skip: Number(skip),
+                    orderBy: { createdAt: 'desc' }
+                }
+            }
+        })
+        return {
+            ...chat,
+            users: chat.users.map((userChat) => userChat.user), // Только пользователи
+        };
     }
 }

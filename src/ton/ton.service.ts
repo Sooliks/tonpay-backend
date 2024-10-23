@@ -126,9 +126,9 @@ export class TonService {
     }
     @Cron('*/30 * * * * *') // Каждые 30 секунд
     handleCron() {
-        console.log('Проверка новых транзакций...');
+        //console.log('Проверка новых транзакций...');
         this.checkNewTransactions().catch((e)=>{
-            console.log(e)
+            //console.log(e)
         });
     }
     bigIntToBuffer(data: bigint) {
@@ -186,7 +186,7 @@ export class TonService {
                 }
             }
         }catch (error) {
-            console.error('Ошибка', error);
+            //console.error('Ошибка', error);
         }
     }
 }
