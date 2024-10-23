@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 import { CreateMessageDto } from "./chat.dto";
 import { CloudinaryService } from "../cloudinary/cloudinary.service";
-import { Chat } from "@prisma/client";
+import { Chat, Message } from "@prisma/client";
 import { NotificationsService } from "../notifications/notifications.service";
 
 @Injectable()
@@ -10,20 +10,23 @@ export class ChatService {
     constructor(private readonly prisma: PrismaService, private readonly cloudinary: CloudinaryService, private readonly notificationsService: NotificationsService) {}
 
     async createMessage(dto: CreateMessageDto) {
+        if(!dto.message && dto.files.length === 0){
+            throw new BadRequestException('The message must contain text or files')
+        }
         let chat: Chat = await this.prisma.chat.findFirst({
             where: {
                 AND: [
                     {
                         users: {
                             some: {
-                                userId: dto.senderId,
+                                userId: dto.senderId
                             }
                         }
                     },
                     {
                         users: {
                             some: {
-                                userId: dto.recipientId,
+                                userId: dto.recipientId
                             }
                         }
                     }
@@ -43,23 +46,24 @@ export class ChatService {
                 ],
             });
         }
-        let message = await this.prisma.message.create({
+        let message: Message = await this.prisma.message.create({
             data: {
                 content: dto.message,
                 chatId: chat.id,
                 senderId: dto.senderId
-            }
+            }, include: {sender: true}
         });
         let screenUrls: string[] = []
-        if(dto.files)
-        for (let i = 0; i < dto.files.length; i++){
-            const res =  await this.cloudinary.uploadImage(dto.files[i], `/tonpay/messages/${message.id}`)
-            screenUrls = [...screenUrls, res.public_id]
+        if(dto.files) {
+            for (let i = 0; i < dto.files.length; i++) {
+                const res = await this.cloudinary.uploadImage(dto.files[i], `/tonpay/messages/${message.id}`)
+                screenUrls = [...screenUrls, res.public_id]
+            }
         }
-        if(screenUrls.length > 0) message = await this.prisma.message.update({where: {id: message.id}, data: {screens: screenUrls}})
+        if(screenUrls.length > 0) message = await this.prisma.message.update({where: {id: message.id}, data: {screens: screenUrls}, include: {sender: true}})
         const connectedUsers = await this.notificationsService.getConnectedUsers()
+        const user = await this.prisma.user.findUnique({where: {id: dto.senderId}})
         if(!connectedUsers.has(dto.recipientId)){
-            const user = await this.prisma.user.findUnique({where: {id: dto.senderId}})
             await this.notificationsService.notifyUser(dto.recipientId, `You have received a new message from @${user.nickname}: ${message.content || 'File'}`, true)
         }
         return message;
@@ -105,7 +109,6 @@ export class ChatService {
         }));
     }
     async getMessages(chatId: string, take: number, skip: number){
-        console.log(chatId)
         const chat = await this.prisma.chat.findUnique({
             where: {id: chatId},
             include: {

@@ -133,7 +133,7 @@ model UserChat {
 
 model Message {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  content   String
+  content   String?
   createdAt DateTime @default(now())
   chatId    String   @db.ObjectId
   senderId  String   @db.ObjectId

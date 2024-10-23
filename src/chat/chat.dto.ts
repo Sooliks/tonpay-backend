@@ -7,11 +7,12 @@ export class CreateMessageDto {
     @IsMongoId()
     senderId: string
 
+    @IsOptional()
     @IsString()
-    message: string
+    message?: string
 
     @IsOptional()
     @IsArray()
-    @ArrayMaxSize(3, { message: 'You can upload up to 3 images.' })
+    @ArrayMaxSize(2, { message: 'You can upload up to 2 images.' })
     files?: Express.Multer.File[];
 }
