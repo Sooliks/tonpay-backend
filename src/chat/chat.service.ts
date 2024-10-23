@@ -101,7 +101,11 @@ export class ChatService {
                 },
             },
         });
-        // Возвращаем найденные чаты
+        userChats.sort((a, b) => {
+            const lastMessageA = a.messages[0]?.createdAt || new Date(0); // Если сообщений нет, ставим минимальную дату
+            const lastMessageB = b.messages[0]?.createdAt || new Date(0);
+            return lastMessageB.getTime() - lastMessageA.getTime(); // Сортируем по убыванию даты
+        });
         return userChats.map((chat) => ({
             id: chat.id,
             users: chat.users.map((userChat) => userChat.user), // список пользователей
