@@ -3,10 +3,11 @@ import { PrismaService } from "../prisma.service";
 import { CreateMessageDto } from "./chat.dto";
 import { CloudinaryService } from "../cloudinary/cloudinary.service";
 import { Chat } from "@prisma/client";
+import { NotificationsService } from "../notifications/notifications.service";
 
 @Injectable()
 export class ChatService {
-    constructor(private readonly prisma: PrismaService, private readonly cloudinary: CloudinaryService) {}
+    constructor(private readonly prisma: PrismaService, private readonly cloudinary: CloudinaryService, private readonly notificationsService: NotificationsService) {}
 
     async createMessage(dto: CreateMessageDto) {
         let chat: Chat = await this.prisma.chat.findFirst({
@@ -46,8 +47,8 @@ export class ChatService {
             data: {
                 content: dto.message,
                 chatId: chat.id,
-                senderId: dto.senderId,
-            },
+                senderId: dto.senderId
+            }
         });
         let screenUrls: string[] = []
         if(dto.files)
@@ -56,6 +57,11 @@ export class ChatService {
             screenUrls = [...screenUrls, res.public_id]
         }
         if(screenUrls.length > 0) message = await this.prisma.message.update({where: {id: message.id}, data: {screens: screenUrls}})
+        const connectedUsers = await this.notificationsService.getConnectedUsers()
+        if(!connectedUsers.has(dto.recipientId)){
+            const user = await this.prisma.user.findUnique({where: {id: dto.senderId}})
+            await this.notificationsService.notifyUser(dto.recipientId, `You have received a new message from @${user.nickname}: ${message.content || 'File'}`, true)
+        }
         return message;
     }
     async getUserChats(userId: string) {

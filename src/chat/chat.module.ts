@@ -6,6 +6,7 @@ import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../prisma.service";
 import { ChatController } from "./chat.controller";
 import { CloudinaryService } from "../cloudinary/cloudinary.service";
+import { NotificationsModule } from "../notifications/notifications.module";
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { CloudinaryService } from "../cloudinary/cloudinary.service";
       global: true,
       secret: process.env.JWT_CONSTANTS,
       signOptions: { expiresIn: "1h" },
-    })
+    }), NotificationsModule
   ],
   providers: [ChatGateway, ChatService, ConfigService, PrismaService, CloudinaryService],
   controllers: [ChatController]
