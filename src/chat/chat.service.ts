@@ -66,8 +66,13 @@ export class ChatService {
         const connectedUsers = await this.notificationsService.getConnectedUsers()
         const user = await this.prisma.user.findUnique({where: {id: dto.senderId}})
         if(!connectedUsers.has(dto.recipientId)){
-            await this.notificationsService.notifyUser(dto.recipientId, `You have received a new message from @${user.nickname}: ${message.content || 'File'}`, true)
+            try {
+                await this.notificationsService.notifyUser(dto.recipientId, `You have received a new message from @${user.nickname}: ${message.content || 'File'}`, true)
+            }catch (e) {
+                
+            }
         }
+        
         this.chatSocketService.sendMessageToUser(dto.recipientId, message)
         return message;
     }
