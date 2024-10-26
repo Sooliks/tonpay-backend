@@ -11,7 +11,7 @@ import { ChatSocketService } from "../chat-socket/chat-socket.service";
 export class ChatService {
     constructor(private readonly prisma: PrismaService, private readonly cloudinary: CloudinaryService, private readonly notificationsService: NotificationsService, private readonly chatSocketService: ChatSocketService) {}
 
-    async createMessage(dto: CreateMessageDto) {
+    async createMessage(dto: CreateMessageDto, isSystemMessage: boolean = false) {
         if(!dto.message && dto.files.length === 0){
             throw new BadRequestException('The message must contain text or files')
         }
@@ -52,8 +52,10 @@ export class ChatService {
             data: {
                 content: dto.message,
                 chatId: chat.id,
-                senderId: dto.senderId
-            }, include: {sender: true}
+                senderId: dto.senderId,
+                isSystemMessage: isSystemMessage
+            },
+            include: {sender: true}
         });
         let screenUrls: string[] = []
         if(dto.files) {

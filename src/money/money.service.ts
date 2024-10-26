@@ -7,7 +7,7 @@ export class MoneyService {
     async minusMoney(userId: string, money: number){
         const user = await this.prisma.user.findUnique({where: {id: userId}})
         if(user.money < money){
-            throw new BadRequestException('You not have money')
+            throw new BadRequestException('There is not enough TON on the balance sheet')
         }
         return this.prisma.user.update({
             where: {id: userId},

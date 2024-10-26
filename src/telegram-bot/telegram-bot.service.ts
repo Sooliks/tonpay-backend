@@ -9,6 +9,10 @@ export class TelegramBotService {
         this.bot = new TelegramBot(this.configService.get<string>('TELEGRAMBOT_TOKEN'), { polling: true });
     }
     async sendMessage(chatId: number | string, message: string): Promise<TelegramBot.Message> {
-        return this.bot.sendMessage(chatId, message);
+        try {
+            return this.bot.sendMessage(chatId, message);
+        }catch (e) {
+            
+        }
     }
 }

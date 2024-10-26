@@ -1,8 +1,9 @@
-import { IsMongoId } from "class-validator";
+import { IsMongoId, IsOptional } from "class-validator";
 
 export class CreateOrderDto {
+    @IsOptional()
     @IsMongoId()
-    userId: string
+    userId?: string
 
     @IsMongoId()
     saleId: string

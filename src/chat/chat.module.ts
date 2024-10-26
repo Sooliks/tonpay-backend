@@ -16,6 +16,7 @@ import { ChatSocketModule } from "../chat-socket/chat-socket.module";
     }), NotificationsModule, ChatSocketModule
   ],
   providers: [ChatService, ConfigService, PrismaService, CloudinaryService],
-  controllers: [ChatController]
+  controllers: [ChatController],
+  exports: [ChatService]
 })
 export class ChatModule {}

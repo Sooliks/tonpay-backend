@@ -138,9 +138,10 @@ model Message {
   chatId    String   @db.ObjectId
   senderId  String   @db.ObjectId
 
-  chat    Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  sender  User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
-  screens String[] @default([])
+  chat            Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender          User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  screens         String[] @default([])
+  isSystemMessage Boolean  @default(false)
 }
 
 enum Role {
