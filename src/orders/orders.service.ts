@@ -16,6 +16,9 @@ export class OrdersService {
         if(sale.isModerating || !sale.isPublished){
             throw new BadRequestException("No sale found")
         }
+        if(sale.userId === dto.userId){
+            throw new BadRequestException("You can't buy your own product")
+        }
         await this.moneyService.minusMoney(dto.userId, sale.price)
         const product: string | undefined = sale.product.at(-1);
         if(product){
@@ -27,13 +30,18 @@ export class OrdersService {
                 }
             })
         }
-        await this.chatService.createMessage({recipientId: dto.userId, senderId: sale.userId, message: `The order has been created, confirm only after the order is fully completed.${product ? `\nAuto delivery: ${product}` : ''}`}, true)
+        const message = await this.chatService.createMessage({recipientId: dto.userId, senderId: sale.userId, message: `The order has been created, confirm only after the order is fully completed.${product ? `\nAuto delivery: ${product}` : ''}`}, true)
         await this.notificationsService.notifyUser(sale.userId, 'You have a new order', true)
-        return this.prisma.order.create({
+        const order = this.prisma.order.create({
             data: {
                 saleId: sale.id,
                 customerId: dto.userId, amount: sale.price, product: product
             }
         })
+        return {
+            order: order,
+            chatId: message.chatId
+        }
+
     }
 }
