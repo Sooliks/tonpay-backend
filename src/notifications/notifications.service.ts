@@ -18,7 +18,7 @@ export class NotificationsService {
         }
         this.notificationsGateway.sendNotificationToAll(message);
     }
-    async notifyUser(userId: string, message: string, sendInTelegram: boolean = true) {
+    async notifyUser(userId: string, message: string, sendInTelegram: boolean = false) {
         if(sendInTelegram) {
             if(this.notificationsGateway.getConnectedUsers().has(userId)){
                 return
