@@ -23,12 +23,15 @@ export class OrdersService {
         const product: string | undefined = sale.product.at(-1);
         if(product){
             const products = sale.product.splice(sale.product.length - 1, 1);
-            await this.prisma.sale.update({
+            const updatedSale = await this.prisma.sale.update({
                 where: {id: sale.id},
                 data: {
                     product: { set: products }
                 }
             })
+            if(updatedSale.product.length === 0){
+                await this.prisma.sale.update({where: {id: sale.id}, data: {isPublished: false}})
+            }
         }
         const message = await this.chatService.createMessage({recipientId: dto.userId, senderId: sale.userId, message: `The order has been created, confirm only after the order is fully completed.${product ? `\nAuto delivery: ${product}` : ''}`}, true)
         await this.notificationsService.notifyUser(sale.userId, 'You have a new order', true)

@@ -2,10 +2,11 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 import { CreateSaleDto, DeleteSaleForAdminDto } from "./sale.dto";
 import { CloudinaryService } from "../cloudinary/cloudinary.service";
+import { FeedbackService } from "../feedback/feedback.service";
 @Injectable()
 export class SaleService {
-  constructor(private readonly prisma: PrismaService, private readonly cloudinary: CloudinaryService) {}
-  findAllBySubScopeId(id: string, count: number, skip?: number){
+  constructor(private readonly prisma: PrismaService, private readonly cloudinary: CloudinaryService, private readonly feedbackService: FeedbackService) {}
+  async findAllBySubScopeId(id: string, count: number, skip?: number){
     return this.prisma.sale.findMany({
       where: { subScopeId: id, isModerating: false, isPublished: true},
       include: {
@@ -22,8 +23,8 @@ export class SaleService {
       skip: skip ? Number(skip) : undefined
     })
   }
-  getSaleById(id: string){
-    return this.prisma.sale.findUnique({
+  async getSaleById(id: string){
+    const sale = await this.prisma.sale.findUnique({
       where: {id: id},
       include: {
         feedbacks: true,
@@ -32,11 +33,16 @@ export class SaleService {
             scope: true
           }
         },
-        user: true
+        user: {
+          include: {feedbacks: true}
+        }
       }
     })
+    const user = {...sale.user, rate: await this.feedbackService.getAverageRating(sale.user.feedbacks)}
+    sale.user = user
+    return sale
   }
-  findAllByUserId(userId: string) {
+  async findAllByUserId(userId: string) {
     return this.prisma.sale.findMany({
       where: { userId: userId },
       include: {
@@ -51,7 +57,7 @@ export class SaleService {
       orderBy: [{id: 'desc'}]
     })
   }
-  findAllOnModerating() {
+  async findAllOnModerating() {
     return this.prisma.sale.findMany({
       where: { isModerating: true },
       include: {
