@@ -40,3 +40,8 @@ export class DeleteSaleForAdminDto {
   reason?: string
 }
 
+export class SetLastWatchingSaleIdDto {
+  @IsMongoId()
+  saleId: string
+}
+

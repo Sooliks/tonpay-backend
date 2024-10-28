@@ -53,10 +53,10 @@ export class OrdersService {
             chatId: message.chatId
         }
     }
-    async getMyPurchases(userId: string) {
-        return this.prisma.order.findMany({where: {customerId: userId}})
+    async getMyPurchases(userId: string, count: number, skip?: number) {
+        return this.prisma.order.findMany({where: {customerId: userId}, take: Number(count), skip: Number(skip)})
     }
-    async getMySales(userId: string) {
-        return this.prisma.order.findMany({where: {sellerId: userId}})
+    async getMySales(userId: string, count: number, skip?: number) {
+        return this.prisma.order.findMany({where: {sellerId: userId}, take: Number(count), skip: Number(skip)})
     }
 }

@@ -8,25 +8,26 @@ datasource db {
 }
 
 model User {
-  id               String        @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt        DateTime      @default(now())
-  telegramId       Int           @unique
-  nickname         String        @unique
-  role             Role          @default(USER)
-  refId            String?
-  isPremium        Boolean       @default(false)
-  sales            Sale[]
-  isBanned         Boolean       @default(false)
-  messages         Message[]
-  chats            UserChat[]
-  feedbacks        Feedback[]
-  money            Float         @default(0)
-  transactions     Transaction[]
-  lastOnline       DateTime      @default(now())
-  photoUrl         String?
-  lastUpSales      DateTime?
-  ordersAsCustomer Order[]       @relation("CustomerOrder")
-  ordersAsSeller   Order[]       @relation("SellerOrder")
+  id                 String        @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt          DateTime      @default(now())
+  telegramId         Int           @unique
+  nickname           String        @unique
+  role               Role          @default(USER)
+  refId              String?
+  isPremium          Boolean       @default(false)
+  sales              Sale[]        @relation("UserSales")
+  isBanned           Boolean       @default(false)
+  messages           Message[]
+  chats              UserChat[]
+  feedbacks          Feedback[]
+  money              Float         @default(0)
+  transactions       Transaction[]
+  lastOnline         DateTime      @default(now())
+  photoUrl           String?
+  lastUpSales        DateTime?
+  ordersAsCustomer   Order[]       @relation("CustomerOrder")
+  ordersAsSeller     Order[]       @relation("SellerOrder")
+  lastWatchingSaleId String?       @db.ObjectId
 }
 
 model Transaction {
@@ -82,7 +83,7 @@ model SubScope {
 model Sale {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   createdAt    DateTime @default(now())
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User     @relation("UserSales", fields: [userId], references: [id], onDelete: Cascade)
   userId       String   @db.ObjectId
   price        Float
   product      String[] @default([])

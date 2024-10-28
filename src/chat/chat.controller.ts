@@ -20,8 +20,8 @@ export class ChatController {
         return this.chatService.getUserChats(req.user.id)
     }
     @Get('dialogs/:id/messages')
-    async getDialogById(@Param('id') id: string, @Query('skip') skip: number, @Query('count') count: number) {
-        return this.chatService.getMessages(id, count, skip)
+    async getDialogById(@Param('id') id: string, @Query('skip') skip: number, @Query('count') count: number, @Request() req) {
+        return this.chatService.getMessages(id, count, skip, req.user.id)
     }
 
 }

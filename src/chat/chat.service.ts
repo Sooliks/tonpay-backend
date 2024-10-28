@@ -114,7 +114,7 @@ export class ChatService {
             lastMessage: chat.messages[0], // последнее сообщение
         }));
     }
-    async getMessages(chatId: string, take: number, skip: number){
+    async getMessages(chatId: string, take: number, skip: number, userId: string){
         const chat = await this.prisma.chat.findUnique({
             where: {id: chatId},
             include: {
@@ -136,9 +136,19 @@ export class ChatService {
                 }
             }
         })
+        const users = chat.users.map((userChat) => userChat.user);
+        const userRecipient = users.filter(u=>u.id!==userId)[0];
+        const userSender = users.filter(u=>u.id===userId)[0];
+        const saleId = userRecipient?.lastWatchingSaleId || users[0]?.lastWatchingSaleId;
+        let sale = undefined;
+        if(saleId) {
+            sale = await this.prisma.sale.findUnique({ where: { id: saleId, isPublished: true } })
+        }
+        if(sale?.userId !== userSender.id)sale = undefined;
         return {
             ...chat,
-            users: chat.users.map((userChat) => userChat.user), // Только пользователи
+            users: users,
+            sale: sale
         };
     }
 }

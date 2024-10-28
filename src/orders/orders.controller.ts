@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Request } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Query, Request } from "@nestjs/common";
 import { OrdersService } from './orders.service';
 import { CreateFeedbackDto } from "../feedback/feedback.dto";
 import { CreateOrderDto } from "./orders.dto";
@@ -12,17 +12,12 @@ export class OrdersController {
     dto.userId = req.user.id;
     return this.ordersService.createOrder(dto)
   }
-
-  @Get('byid/:id')
-  async getOrder(@Param('id') id: string) {
-
-  }
   @Get('mysales')
-  async getMySales(@Request() req) {
-    return this.ordersService.getMySales(req.user.id)
+  async getMySales(@Query('count') count: number, @Request() req, @Query('skip') skip?: number) {
+    return this.ordersService.getMySales(req.user.id, count, skip)
   }
   @Get('mypurchases')
-  async getMyPurchases(@Request() req) {
-    return this.ordersService.getMyPurchases(req.user.id)
+  async getMyPurchases(@Query('count') count: number, @Request() req, @Query('skip') skip?: number) {
+    return this.ordersService.getMyPurchases(req.user.id, count, skip)
   }
 }

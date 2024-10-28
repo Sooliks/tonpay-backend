@@ -9,7 +9,7 @@ import {
   UseInterceptors
 } from "@nestjs/common";
 import { SaleService } from './sale.service';
-import { CreateSaleDto, DeleteSaleForAdminDto } from "./sale.dto";
+import { CreateSaleDto, DeleteSaleForAdminDto, SetLastWatchingSaleIdDto } from "./sale.dto";
 import { PublicRoute } from "../decorators/public-route.decorator";
 import { Roles } from "../decorators/role.decorator";
 import { Role } from "@prisma/client";
@@ -58,5 +58,10 @@ export class SaleController {
   @Roles(Role.ADMIN, Role.CREATOR)
   async publish(@Param('id') id: string){
     return this.saleService.publish(id);
+  }
+
+  @Post('setlastwatchingsale')
+  async setLastWatchingSale(@Body() dto: SetLastWatchingSaleIdDto,@Request() req){
+    return this.saleService.setLastWatchingSaleId(dto.saleId, req.user.id)
   }
 }
