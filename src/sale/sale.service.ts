@@ -118,7 +118,9 @@ export class SaleService {
   }
   async setLastWatchingSaleId(saleId: string, userId: string) {
     const sale = await this.prisma.sale.findUnique({where: {id: saleId, isPublished: true}})
-    if(!sale)throw new BadRequestException('Not found sale')
+    if(!sale){
+      return
+    }
     return this.prisma.user.update({where: {id: userId}, data: {lastWatchingSaleId: saleId}})
   }
 }

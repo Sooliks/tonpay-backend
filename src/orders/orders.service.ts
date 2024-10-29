@@ -39,7 +39,7 @@ export class OrdersService {
             message: `The order has been created, confirm only after the order is fully completed.${product ? `\nAuto delivery: ${product}` : ''}`
         }, true)
         await this.notificationsService.notifyUser(sale.userId, 'You have a new order', true)
-        const order = this.prisma.order.create({
+        const order = await this.prisma.order.create({
             data: {
                 saleId: sale.id,
                 customerId: dto.userId,
@@ -58,11 +58,9 @@ export class OrdersService {
             where: {customerId: userId},
             take: Number(count),
             skip: Number(skip),
-            /*include: {
-                sale: true,
-                seller: true,
-                customer: true
-            }*/
+            include: {
+                sale: true
+            }
         })
     }
     async getMySales(userId: string, count: number, skip?: number) {
@@ -70,11 +68,9 @@ export class OrdersService {
             where: {sellerId: userId},
             take: Number(count),
             skip: Number(skip),
-            /*include: {
-                sale: true,
-                seller: true,
-                customer: true
-            }*/
+            include: {
+                sale: true
+            }
         })
     }
     async getOrderById(orderId: string){
