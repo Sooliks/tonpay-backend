@@ -54,9 +54,38 @@ export class OrdersService {
         }
     }
     async getMyPurchases(userId: string, count: number, skip?: number) {
-        return this.prisma.order.findMany({where: {customerId: userId}, take: Number(count), skip: Number(skip)})
+        return this.prisma.order.findMany({
+            where: {customerId: userId},
+            take: Number(count),
+            skip: Number(skip),
+            /*include: {
+                sale: true,
+                seller: true,
+                customer: true
+            }*/
+        })
     }
     async getMySales(userId: string, count: number, skip?: number) {
-        return this.prisma.order.findMany({where: {sellerId: userId}, take: Number(count), skip: Number(skip)})
+        return this.prisma.order.findMany({
+            where: {sellerId: userId},
+            take: Number(count),
+            skip: Number(skip),
+            /*include: {
+                sale: true,
+                seller: true,
+                customer: true
+            }*/
+        })
+    }
+    async getOrderById(orderId: string){
+        return this.prisma.order.findUnique({
+            where: { id: orderId },
+            include: {
+                sale: true,
+                seller: true,
+                customer: true,
+                feedback: true
+            }
+        })
     }
 }

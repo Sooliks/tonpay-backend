@@ -29,6 +29,7 @@ model User {
   lastWatchingSaleId String?       @db.ObjectId
   leftFeedbacks      Feedback[]    @relation("LeftFeedbacks")
   myFeedbacks        Feedback[]    @relation("MyFeedbacks")
+  trustedSeller      Boolean       @default(false)
 }
 
 model Transaction {

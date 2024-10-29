@@ -20,4 +20,8 @@ export class OrdersController {
   async getMyPurchases(@Query('count') count: number, @Request() req, @Query('skip') skip?: number) {
     return this.ordersService.getMyPurchases(req.user.id, count, skip)
   }
+  @Get('byid/:id')
+  async getOrderById(@Param('id') id: string) {
+    return this.ordersService.getOrderById(id);
+  }
 }
