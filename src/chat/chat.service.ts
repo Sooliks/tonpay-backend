@@ -139,7 +139,7 @@ export class ChatService {
         const users = chat.users.map((userChat) => userChat.user);
         const userRecipient = users.filter(u=>u.id!==userId)[0];
         const userSender = users.filter(u=>u.id===userId)[0];
-        const saleId = userRecipient?.lastWatchingSaleId || users[0]?.lastWatchingSaleId;
+        const saleId = userRecipient?.lastWatchingSaleId;
         let sale = undefined;
         if(saleId) {
             sale = await this.prisma.sale.findUnique({ where: { id: saleId, isPublished: true } })
