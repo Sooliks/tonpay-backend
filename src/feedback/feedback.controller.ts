@@ -1,10 +1,11 @@
-import { Body, Controller, Delete, Post, Request } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Request } from "@nestjs/common";
 import { FeedbackService } from './feedback.service';
 import { CreateFeedbackDto } from "./feedback.dto";
 import { Roles } from "../decorators/role.decorator";
 import { Role } from "@prisma/client";
+import { PublicRoute } from "../decorators/public-route.decorator";
 
-@Controller('feedback')
+@Controller('feedbacks')
 export class FeedbackController {
   constructor(private readonly feedbackService: FeedbackService) {}
   @Post()
@@ -16,5 +17,11 @@ export class FeedbackController {
   @Roles(Role.ADMIN, Role.CREATOR)
   async delete(@Body() body: {id: string}){
     return this.feedbackService.delete(body.id)
+  }
+
+  @PublicRoute()
+  @Get('byuserid/:id')
+  async getFeedbacksByUserId(@Param('id') id: string){
+    return this.feedbackService.getFeedbacksByUserId(id)
   }
 }

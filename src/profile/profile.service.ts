@@ -23,12 +23,7 @@ export class ProfileService {
             }
         })
         const feedbacks = await this.prisma.feedback.findMany({
-            where: {
-                sale: {
-                    userId: id
-                }
-            },
-            include: {sale: true}
+            where: { recipientId: id }
         })
         const connectedUsers = await this.notificationsService.getConnectedUsers()
         user = {...user, isOnline: connectedUsers.has(user.id)}

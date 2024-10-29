@@ -10,7 +10,6 @@ export class SaleService {
     return this.prisma.sale.findMany({
       where: { subScopeId: id, isModerating: false, isPublished: true},
       include: {
-        feedbacks: true,
         subScope: {
           include: {
             scope: true
@@ -18,7 +17,7 @@ export class SaleService {
         },
         user: true
       },
-      orderBy: [{id: 'desc'}],
+      orderBy: [{lastUp: 'desc'}],
       take: Number(count),
       skip: skip ? Number(skip) : undefined
     })
@@ -27,26 +26,24 @@ export class SaleService {
     const sale = await this.prisma.sale.findUnique({
       where: {id: id},
       include: {
-        feedbacks: true,
         subScope: {
           include: {
             scope: true
           }
         },
         user: {
-          include: {feedbacks: true}
+          include: {leftFeedbacks: true}
         }
       }
     })
-    const user = {...sale.user, rate: await this.feedbackService.getAverageRating(sale.user.feedbacks)}
+    const user = {...sale.user, rate: await this.feedbackService.getAverageRating(sale.user.leftFeedbacks)}
     sale.user = user
     return sale
   }
-  async findAllByUserId(userId: string) {
+  async findAllByUserId(userId: string, isPublished?: boolean) {
     return this.prisma.sale.findMany({
-      where: { userId: userId },
+      where: { userId: userId, isPublished: isPublished },
       include: {
-        feedbacks: true,
         subScope: {
           include: {
             scope: true
@@ -54,14 +51,13 @@ export class SaleService {
         },
         user: true
       },
-      orderBy: [{id: 'desc'}]
+      orderBy: [{lastUp: 'desc'}]
     })
   }
   async findAllOnModerating() {
     return this.prisma.sale.findMany({
       where: { isModerating: true },
       include: {
-        feedbacks: true,
         subScope: {
           include: {
             scope: true

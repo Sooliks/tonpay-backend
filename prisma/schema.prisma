@@ -19,7 +19,6 @@ model User {
   isBanned           Boolean       @default(false)
   messages           Message[]
   chats              UserChat[]
-  feedbacks          Feedback[]
   money              Float         @default(0)
   transactions       Transaction[]
   lastOnline         DateTime      @default(now())
@@ -28,6 +27,8 @@ model User {
   ordersAsCustomer   Order[]       @relation("CustomerOrder")
   ordersAsSeller     Order[]       @relation("SellerOrder")
   lastWatchingSaleId String?       @db.ObjectId
+  leftFeedbacks      Feedback[]    @relation("LeftFeedbacks")
+  myFeedbacks        Feedback[]    @relation("MyFeedbacks")
 }
 
 model Transaction {
@@ -47,14 +48,15 @@ enum TransactionType {
 }
 
 model Feedback {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt DateTime @default(now())
-  sale      Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
-  saleId    String   @db.ObjectId
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String   @db.ObjectId
-  rate      Int
-  text      String?
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt   DateTime @default(now())
+  user        User     @relation("LeftFeedbacks", fields: [userId], references: [id], onDelete: Cascade)
+  userId      String   @db.ObjectId
+  recipient   User     @relation("MyFeedbacks", fields: [recipientId], references: [id], onDelete: Cascade)
+  recipientId String   @db.ObjectId
+  rate        Int
+  text        String?
+  order       Order?   @relation()
 }
 
 model Scope {
@@ -93,10 +95,9 @@ model Sale {
   subScopeId String   @db.ObjectId
   subScope   SubScope @relation(fields: [subScopeId], references: [id], onDelete: Cascade)
 
-  adminId     String?    @db.ObjectId
+  adminId     String? @db.ObjectId
   title       String
   description String
-  feedbacks   Feedback[]
 
   currency   Float?
   screenUrls String[] @default([])
@@ -106,18 +107,20 @@ model Sale {
 }
 
 model Order {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt   DateTime @default(now())
-  sale        Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
-  saleId      String   @db.ObjectId
-  customer    User     @relation("CustomerOrder", fields: [customerId], references: [id], onDelete: Cascade)
-  customerId  String   @db.ObjectId
-  isCompleted Boolean  @default(false)
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt   DateTime  @default(now())
+  sale        Sale      @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  saleId      String    @db.ObjectId
+  customer    User      @relation("CustomerOrder", fields: [customerId], references: [id], onDelete: Cascade)
+  customerId  String    @db.ObjectId
+  isCompleted Boolean   @default(false)
+  isCancelled Boolean   @default(false)
   amount      Float
   product     String?
-
-  seller   User   @relation("SellerOrder", fields: [sellerId], references: [id], onDelete: Cascade)
-  sellerId String @db.ObjectId
+  seller      User      @relation("SellerOrder", fields: [sellerId], references: [id], onDelete: Cascade)
+  sellerId    String    @db.ObjectId
+  feedback    Feedback? @relation(fields: [feedbackId], references: [id], onDelete: NoAction, onUpdate: NoAction) // Обратная связь с User
+  feedbackId  String?   @unique @db.ObjectId
 }
 
 model Chat {
