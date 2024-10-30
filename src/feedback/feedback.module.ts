@@ -3,10 +3,12 @@ import { FeedbackService } from './feedback.service';
 import { FeedbackController } from './feedback.controller';
 import { PrismaService } from "../prisma.service";
 import { NotificationsModule } from "../notifications/notifications.module";
+import { NotificationsService } from "../notifications/notifications.service";
 
 @Module({
   imports: [NotificationsModule],
   controllers: [FeedbackController],
   providers: [FeedbackService, PrismaService],
+  exports: [FeedbackService]
 })
 export class FeedbackModule {}

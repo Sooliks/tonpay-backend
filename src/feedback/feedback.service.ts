@@ -6,7 +6,7 @@ import { NotificationsService } from "../notifications/notifications.service";
 
 @Injectable()
 export class FeedbackService {
-  constructor(private readonly prisma: PrismaService, private readonly notificationsService: NotificationsService) {}
+  constructor(private readonly prisma: PrismaService, private notificationsService: NotificationsService) {}
   async create(feedbackDto: CreateFeedbackDto, userId: string){
     const order = await this.prisma.order.findUnique({
       where: {
@@ -44,6 +44,6 @@ export class FeedbackService {
     return Math.round(averageRating * 10) / 10;
   }
   async getFeedbacksByUserId(userId: string){
-    return this.prisma.feedback.findMany({where: {recipientId: userId}, include: {user: true}});
+    return this.prisma.feedback.findMany({where: {recipientId: userId}, include: {user: true, order: {include: {sale: true}}}});
   }
 }
