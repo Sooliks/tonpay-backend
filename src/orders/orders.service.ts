@@ -84,4 +84,24 @@ export class OrdersService {
             }
         })
     }
+    async confirmOrder(orderId: string, userId: string) {
+        let order = await this.prisma.order.findUnique({where: {id: orderId, customerId: userId}});
+        if(!order){
+            throw new NotFoundException("No order found")
+        }
+        if(order.isCompleted || order.isCancelled){
+            throw new NotFoundException("The order has already been cancelled or confirmed")
+        }
+        order = await this.prisma.order.update({
+            where: {customerId: userId, id: orderId},
+            data: {
+                isCompleted: true
+            }
+        })
+        if(!order){
+            throw new NotFoundException("No order found")
+        }
+        await this.moneyService.plusMoney(order.sellerId, order.amount)
+        return order;
+    }
 }

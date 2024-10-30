@@ -8,3 +8,8 @@ export class CreateOrderDto {
     @IsMongoId()
     saleId: string
 }
+
+export class ConfirmOrderDto {
+    @IsMongoId()
+    orderId: string
+}

@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post, Query, Request } from "@nestjs/common";
 import { OrdersService } from './orders.service';
 import { CreateFeedbackDto } from "../feedback/feedback.dto";
-import { CreateOrderDto } from "./orders.dto";
+import { ConfirmOrderDto, CreateOrderDto } from "./orders.dto";
 
 @Controller('orders')
 export class OrdersController {
@@ -23,5 +23,10 @@ export class OrdersController {
   @Get('byid/:id')
   async getOrderById(@Param('id') id: string) {
     return this.ordersService.getOrderById(id);
+  }
+
+  @Post('confirm')
+  async confirmOrder(@Request() req, @Body() dto: ConfirmOrderDto) {
+    return this.ordersService.confirmOrder(dto.orderId, req.user.id)
   }
 }
