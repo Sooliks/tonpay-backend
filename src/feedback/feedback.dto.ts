@@ -2,7 +2,7 @@ import { IsInt, IsMongoId, IsOptional, IsString, Max, Min } from "class-validato
 
 export class CreateFeedbackDto {
   @IsMongoId()
-  saleId: string
+  orderId: string
 
   @IsInt()
   @Max(5)

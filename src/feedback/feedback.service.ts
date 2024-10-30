@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 import { CreateFeedbackDto } from "./feedback.dto";
 import { Feedback } from "@prisma/client";
@@ -7,7 +7,28 @@ import { Feedback } from "@prisma/client";
 export class FeedbackService {
   constructor(private readonly prisma: PrismaService) {}
   async create(feedbackDto: CreateFeedbackDto, userId: string){
-
+    const order = await this.prisma.order.findUnique({
+      where: {
+        customerId: userId,
+        id: feedbackDto.orderId
+      },
+      include: {feedback: true}
+    })
+    if(!order){
+      throw new NotFoundException("No order found")
+    }
+    if(order.feedback){
+      throw new NotFoundException("A review has already been left for this order")
+    }
+    return this.prisma.feedback.create({
+      data: {
+        orderId: order.id,
+        text: feedbackDto.text,
+        recipientId: order.sellerId,
+        userId: userId,
+        rate: feedbackDto.rate
+      }
+    })
   }
   async delete(feedbackId: string) {
     return this.prisma.feedback.delete({
