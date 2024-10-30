@@ -57,7 +57,8 @@ model Feedback {
   recipientId String   @db.ObjectId
   rate        Int
   text        String?
-  order       Order?   @relation()
+  order       Order    @relation(fields: [orderId], references: [id])
+  orderId     String   @unique @db.ObjectId
 }
 
 model Scope {
@@ -120,8 +121,7 @@ model Order {
   product     String?
   seller      User      @relation("SellerOrder", fields: [sellerId], references: [id], onDelete: Cascade)
   sellerId    String    @db.ObjectId
-  feedback    Feedback? @relation(fields: [feedbackId], references: [id], onDelete: NoAction, onUpdate: NoAction) // Обратная связь с User
-  feedbackId  String?   @unique @db.ObjectId
+  feedback    Feedback?
 }
 
 model Chat {

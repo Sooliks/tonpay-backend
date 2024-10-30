@@ -102,6 +102,12 @@ export class OrdersService {
             throw new NotFoundException("No order found")
         }
         await this.moneyService.plusMoney(order.sellerId, order.amount)
+        await this.notificationsService.notifyUser(order.sellerId, `The user has confirmed the order #${order.id}`, true)
+        await this.chatService.createMessage({
+            recipientId: order.sellerId,
+            senderId: order.customerId,
+            message: `Order ${order.id} has been confirmed`
+        }, true)
         return order;
     }
 }
