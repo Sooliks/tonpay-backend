@@ -2,10 +2,11 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 import { PrismaService } from "../prisma.service";
 import { CreateFeedbackDto } from "./feedback.dto";
 import { Feedback } from "@prisma/client";
+import { NotificationsService } from "../notifications/notifications.service";
 
 @Injectable()
 export class FeedbackService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private readonly notificationsService: NotificationsService) {}
   async create(feedbackDto: CreateFeedbackDto, userId: string){
     const order = await this.prisma.order.findUnique({
       where: {
@@ -20,6 +21,7 @@ export class FeedbackService {
     if(order.feedback){
       throw new NotFoundException("A review has already been left for this order")
     }
+    await this.notificationsService.notifyUser(order.sellerId, `You have received a new feedback`, true)
     return this.prisma.feedback.create({
       data: {
         orderId: order.id,
@@ -42,6 +44,6 @@ export class FeedbackService {
     return Math.round(averageRating * 10) / 10;
   }
   async getFeedbacksByUserId(userId: string){
-    return this.prisma.feedback.findMany({where: {recipientId: userId}});
+    return this.prisma.feedback.findMany({where: {recipientId: userId}, include: {user: true}});
   }
 }
