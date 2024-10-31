@@ -7,20 +7,26 @@ import { FeedbackService } from "../feedback/feedback.service";
 export class SaleService {
   constructor(private readonly prisma: PrismaService, private readonly cloudinary: CloudinaryService, private readonly feedbackService: FeedbackService) {}
   async findAllBySubScopeId(id: string, count: number, skip?: number){
-    return this.prisma.sale.findMany({
-      where: { subScopeId: id, isModerating: false, isPublished: true},
+    const sales = await this.prisma.sale.findMany({
+      where: { subScopeId: id, isModerating: false, isPublished: true },
       include: {
         subScope: {
           include: {
-            scope: true
-          }
+            scope: true,
+          },
         },
-        user: true
+        user: true,
       },
-      orderBy: [{lastUp: 'desc'}],
+      orderBy: [{ lastUp: 'desc' }],
       take: Number(count),
-      skip: skip ? Number(skip) : undefined
-    })
+      skip: skip ? Number(skip) : undefined,
+    });
+    // Удаляем поле product у каждой записи
+    const salesWithoutProduct = sales.map((sale) => {
+      const { product, ...saleWithoutProduct } = sale;
+      return saleWithoutProduct;
+    });
+    return salesWithoutProduct;
   }
   async getSaleById(id: string){
     const sale = await this.prisma.sale.findUnique({
@@ -38,18 +44,33 @@ export class SaleService {
     })
     const user = {...sale.user, rate: await this.feedbackService.getAverageRating(sale.user.leftFeedbacks)}
     sale.user = user
+    delete sale.product;
     return sale
   }
   async findAllByUserId(userId: string, isPublished?: boolean) {
     return this.prisma.sale.findMany({
       where: { userId: userId, isPublished: isPublished },
-      include: {
+      select: {
+        id: true,
+        createdAt: true,
+        user: true,
+        price: true,
+        isPublished: true,
+        isModerating: true,
+        subScopeId: true,
         subScope: {
           include: {
-            scope: true
-          }
+            scope: true,
+          },
         },
-        user: true
+        adminId: true,
+        title: true,
+        description: true,
+        currency: true,
+        screenUrls: true,
+        orders: true,
+        lastUp: true,
+        autoMessage: true,
       },
       orderBy: [{lastUp: 'desc'}]
     })
@@ -95,7 +116,8 @@ export class SaleService {
         description: saleDto.description,
         subScopeId: saleDto.subScopeId,
         title: saleDto.title,
-        currency: saleDto.currency ? Number(saleDto.currency) : undefined
+        currency: saleDto.currency ? Number(saleDto.currency) : undefined,
+        autoMessage: saleDto.autoMessage
       }
     })
     let screenUrls: string[] = []

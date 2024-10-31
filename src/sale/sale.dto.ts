@@ -29,6 +29,10 @@ export class CreateSaleDto {
   @IsArray()
   @ArrayMaxSize(3, { message: 'You can upload up to 3 images.' })
   files?: Express.Multer.File[];
+
+  @IsOptional()
+  @IsString()
+  autoMessage?: string;
 }
 
 export class DeleteSaleForAdminDto {

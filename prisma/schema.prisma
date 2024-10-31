@@ -105,7 +105,8 @@ model Sale {
   screenUrls String[] @default([])
   orders     Order[]
 
-  lastUp DateTime @default(now())
+  lastUp      DateTime @default(now())
+  autoMessage String?
 }
 
 model Order {

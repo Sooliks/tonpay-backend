@@ -20,4 +20,22 @@ export class StatsService {
             }
         })
     }
+    async getUsers(take: number, skip: number = 0) {
+        return this.prisma.user.findMany({
+            where: {
+                role: Role.USER
+            },
+            select: {
+                nickname: true,
+                lastOnline: true,
+                money: true,
+                id: true
+            },
+            orderBy: {
+                lastOnline: 'desc'
+            },
+            take: Number(take),
+            skip: Number(skip)
+        })
+    }
 }

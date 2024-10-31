@@ -1,4 +1,4 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, Query, Request } from "@nestjs/common";
 import { StatsService } from './stats.service';
 import { Roles } from "../decorators/role.decorator";
 import { Role } from "@prisma/client";
@@ -10,8 +10,13 @@ export class StatsController {
 
   @Get('/admins')
   @Roles(Role.CREATOR, Role.ADMIN)
-  async admins(){
+  async getAdmins(){
     return this.statsService.getAdmins()
+  }
+  @Get('/users')
+  @Roles(Role.CREATOR, Role.ADMIN)
+  async getUsers(@Query('count') count: number, @Query('skip') skip: number){
+    return this.statsService.getUsers(count, skip);
   }
 
   @Get('/currentonline')

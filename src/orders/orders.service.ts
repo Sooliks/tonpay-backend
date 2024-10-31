@@ -36,8 +36,13 @@ export class OrdersService {
         const message = await this.chatService.createMessage({
             recipientId: dto.userId,
             senderId: sale.userId,
-            message: `The order has been created, confirm only after the order is fully completed.${product ? `\nAuto delivery: ${product}` : ''}`
+            message: `The order has been created, confirm only after the order is fully completed. Don't forget to confirm it on the order page. ${product ? `\nAuto delivery: ${product}` : ''}`
         }, true)
+        await this.chatService.createMessage({
+            recipientId: dto.userId,
+            senderId: sale.userId,
+            message: sale.autoMessage
+        })
         await this.notificationsService.notifyUser(sale.userId, 'You have a new order', true)
         const order = await this.prisma.order.create({
             data: {
