@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Request } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Query, Request } from "@nestjs/common";
 import { FeedbackService } from './feedback.service';
 import { CreateFeedbackDto } from "./feedback.dto";
 import { Roles } from "../decorators/role.decorator";
@@ -21,7 +21,7 @@ export class FeedbackController {
 
   @PublicRoute()
   @Get('byuserid/:id')
-  async getFeedbacksByUserId(@Param('id') id: string){
-    return this.feedbackService.getFeedbacksByUserId(id)
+  async getFeedbacksByUserId(@Param('id') id: string, @Query('count') count: number, @Query('skip') skip: number){
+    return this.feedbackService.getFeedbacksByUserId(id, count, skip)
   }
 }

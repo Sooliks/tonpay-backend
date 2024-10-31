@@ -71,7 +71,7 @@ export class AuthService {
   }
   async getUserById(id: string, initData: string) {
     try {
-      const user = await this.prisma.user.findUnique({ where: { id: id } })
+      const user = await this.prisma.user.findUnique({ where: { id: id }})
       if (!user) {
         throw new NotFoundException()
       }

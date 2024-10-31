@@ -19,10 +19,7 @@ export class NotificationsService {
         this.notificationsGateway.sendNotificationToAll(message);
     }
     async notifyUser(userId: string, message: string, sendInTelegram: boolean = false) {
-        if(sendInTelegram) {
-            if(this.notificationsGateway.getConnectedUsers().has(userId)){
-                return
-            }
+        if(sendInTelegram && !this.notificationsGateway.getConnectedUsers().has(userId)) {
             const {telegramId} = await this.prisma.user.findUnique({where: {id: userId}})
             await this.telegramBotService.sendMessage(telegramId, message)
         }

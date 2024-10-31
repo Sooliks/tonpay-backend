@@ -3,9 +3,10 @@ import { PrismaService } from "../prisma.service";
 import { CreateSaleDto, DeleteSaleForAdminDto } from "./sale.dto";
 import { CloudinaryService } from "../cloudinary/cloudinary.service";
 import { FeedbackService } from "../feedback/feedback.service";
+import { NotificationsService } from "../notifications/notifications.service";
 @Injectable()
 export class SaleService {
-  constructor(private readonly prisma: PrismaService, private readonly cloudinary: CloudinaryService, private readonly feedbackService: FeedbackService) {}
+  constructor(private readonly prisma: PrismaService, private readonly cloudinary: CloudinaryService, private readonly feedbackService: FeedbackService, private readonly notificationsService: NotificationsService) {}
   async findAllBySubScopeId(id: string, count: number, skip?: number){
     const sales = await this.prisma.sale.findMany({
       where: { subScopeId: id, isModerating: false, isPublished: true },
@@ -38,11 +39,11 @@ export class SaleService {
           }
         },
         user: {
-          include: {leftFeedbacks: true}
+          include: {myFeedbacks: true}
         }
       }
     })
-    const user = {...sale.user, rate: await this.feedbackService.getAverageRating(sale.user.leftFeedbacks)}
+    const user = {...sale.user, averageRating: await this.feedbackService.getAverageRating(sale.user.myFeedbacks)}
     sale.user = user
     delete sale.product;
     return sale
@@ -96,6 +97,8 @@ export class SaleService {
         await this.cloudinary.deleteImage(screen)
       })
     }
+    const textNotify = dto.reason ? `Your sale "${sale.title}" did not pass moderation and was deleted for a reason: ${dto.reason}` : `Your sale "${sale.title}" did not pass moderation and was deleted.`;
+    await this.notificationsService.notifyUser(sale.userId, textNotify, true)
     return this.prisma.sale.delete({where: {id: dto.id}})
   }
 
@@ -103,6 +106,9 @@ export class SaleService {
     const count = await this.prisma.sale.count({where: {userId: userId}})
     const user = await this.prisma.user.findUnique({where: {id: userId}})
     if(!user)throw new BadRequestException('Not found user')
+    if(user.isBanned){
+
+    }
     if(!user.isPremium){
       if(count >= 5){
         throw new BadRequestException('For users without a premium, the number of sales is limited')

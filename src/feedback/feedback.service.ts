@@ -13,7 +13,14 @@ export class FeedbackService {
         customerId: userId,
         id: feedbackDto.orderId
       },
-      include: {feedback: true}
+      include: {
+        feedback: true,
+        seller: {
+          include: {
+            myFeedbacks: true
+          }
+        }
+      }
     })
     if(!order){
       throw new NotFoundException("No order found")
@@ -22,7 +29,7 @@ export class FeedbackService {
       throw new NotFoundException("A review has already been left for this order")
     }
     await this.notificationsService.notifyUser(order.sellerId, `You have received a new feedback`, true)
-    return this.prisma.feedback.create({
+    const feedback = await this.prisma.feedback.create({
       data: {
         orderId: order.id,
         text: feedbackDto.text,
@@ -31,6 +38,9 @@ export class FeedbackService {
         rate: feedbackDto.rate
       }
     })
+    const avgRate = await this.getAverageRating([...order.seller.myFeedbacks, feedback]);
+    await this.prisma.user.update({where: {id: order.sellerId}, data: {averageRating: avgRate}})
+    return feedback;
   }
   async delete(feedbackId: string) {
     return this.prisma.feedback.delete({
@@ -43,7 +53,12 @@ export class FeedbackService {
     const averageRating = totalRatings / feedbacks.length;
     return Math.round(averageRating * 10) / 10;
   }
-  async getFeedbacksByUserId(userId: string){
-    return this.prisma.feedback.findMany({where: {recipientId: userId}, include: {user: true, order: {include: {sale: true}}}});
+  async getFeedbacksByUserId(userId: string, count: number, skip: number){
+    return this.prisma.feedback.findMany({
+      where: {recipientId: userId},
+      include: {user: true, order: {include: {sale: true}}},
+      take: Number(count),
+      skip: Number(skip)
+    });
   }
 }

@@ -3,7 +3,6 @@ import { FeedbackService } from './feedback.service';
 import { FeedbackController } from './feedback.controller';
 import { PrismaService } from "../prisma.service";
 import { NotificationsModule } from "../notifications/notifications.module";
-import { NotificationsService } from "../notifications/notifications.service";
 
 @Module({
   imports: [NotificationsModule],
