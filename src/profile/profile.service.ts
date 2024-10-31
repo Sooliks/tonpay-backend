@@ -28,9 +28,9 @@ export class ProfileService {
         const connectedUsers = await this.notificationsService.getConnectedUsers()
         user = {...user, isOnline: connectedUsers.has(user.id)}
         if (feedbacks.length > 0) {
-            return {...user, rate: await this.feedbackService.getAverageRating(feedbacks)};
+            return {...user, averageRating: await this.feedbackService.getAverageRating(feedbacks)};
         } else {
-            return {...user, rate: undefined};
+            return {...user, averageRating: undefined};
         }
     }
 }
