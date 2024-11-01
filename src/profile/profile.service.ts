@@ -19,7 +19,8 @@ export class ProfileService {
                 photoUrl: true,
                 role: true,
                 nickname: true,
-                telegramId: true
+                telegramId: true,
+                languageCode: true
             }
         })
         const feedbacks = await this.prisma.feedback.findMany({

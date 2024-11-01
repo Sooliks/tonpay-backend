@@ -16,7 +16,7 @@ export class AuthService {
       })
 
       const parsedData = parse(initData)
-      const user = await this.findOrCreateUser(parsedData.user.id, parsedData.user.username, refId)
+      const user = await this.findOrCreateUser(parsedData.user.id, parsedData.user.username, refId, parsedData.user.languageCode)
       if(user.isBanned === true) {
         throw new UnauthorizedException('You banned')
       }
@@ -52,7 +52,7 @@ export class AuthService {
       console.error('Ошибка при получении аватарки:', error);
     }
   };
-  async findOrCreateUser(telegramId: number, nickname: string, refId?: string) {
+  async findOrCreateUser(telegramId: number, nickname: string, refId?: string, languageCode?: string) {
     let user = await this.prisma.user.findUnique({
       where: {telegramId: telegramId}
     })
@@ -63,7 +63,8 @@ export class AuthService {
           telegramId: telegramId,
           nickname: nickname,
           refId: refId,
-          photoUrl: avatarUrl
+          photoUrl: avatarUrl,
+          languageCode: languageCode
         }
       })
     }
@@ -81,7 +82,8 @@ export class AuthService {
         where: {id: id},
         data: {
           lastOnline: currentDate,
-          photoUrl: await this.getAvatarUrl(parsedData.user.id)
+          photoUrl: await this.getAvatarUrl(parsedData.user.id),
+          languageCode: parsedData.user.languageCode
         }
       })
       return user
