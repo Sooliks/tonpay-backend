@@ -32,6 +32,8 @@ model User {
   trustedSeller      Boolean       @default(false)
   averageRating      Float?
   languageCode       String?
+  reports            Report[]      @relation("MyReports")
+  reportsAdmin       Report[]      @relation("Admin")
 }
 
 model Transaction {
@@ -125,6 +127,7 @@ model Order {
   seller      User      @relation("SellerOrder", fields: [sellerId], references: [id], onDelete: Cascade)
   sellerId    String    @db.ObjectId
   feedback    Feedback?
+  reports     Report[]
 }
 
 model Chat {
@@ -144,16 +147,28 @@ model UserChat {
 }
 
 model Message {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  content   String?
-  createdAt DateTime @default(now())
-  chatId    String   @db.ObjectId
-  senderId  String   @db.ObjectId
-
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  content         String?
+  createdAt       DateTime @default(now())
+  senderId        String   @db.ObjectId
+  chatId          String   @db.ObjectId
   chat            Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
   sender          User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
   screens         String[] @default([])
   isSystemMessage Boolean  @default(false)
+}
+
+model Report {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId     String   @db.ObjectId
+  user        User     @relation("MyReports", fields: [userId], references: [id], onDelete: Cascade)
+  userId      String   @db.ObjectId
+  text        String
+  createdAt   DateTime @default(now())
+  isCompleted Boolean  @default(false)
+  admin       User?    @relation("Admin", fields: [adminId], references: [id], onDelete: Cascade)
+  adminId     String?  @db.ObjectId
 }
 
 enum Role {
