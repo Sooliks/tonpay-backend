@@ -52,7 +52,13 @@ export class ReportsService {
         throw new BadRequestException('The report has already been taken by another administrator')
     }
     async confirmReport(dto: ConfirmReportDto, adminId: string){
-        await this.takeReport(dto, adminId)
+        const report = await this.prisma.report.findUnique({where: {id: dto.reportId}})
+        if(!report.adminId){
+            throw new BadRequestException('First you need to go to the chat with the users')
+        }
+        if (report.adminId !== adminId) {
+            throw new BadRequestException('You are not responsible for this report')
+        }
         return this.prisma.report.update({
             where: {id: dto.reportId, adminId: adminId},
             data: {
