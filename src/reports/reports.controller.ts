@@ -1,12 +1,39 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Get, Post, Request } from "@nestjs/common";
 import { ReportsService } from './reports.service';
-import { CreateReportDto } from "./reports.dto";
+import { ConfirmReportDto, CreateReportDto, TakeReportDto } from "./reports.dto";
+import { Roles } from "../decorators/role.decorator";
+import { Role } from "@prisma/client";
 
 @Controller('reports')
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
-  @Post()
-  async createReport(@Body() dto: CreateReportDto) {
 
+  @Post('create')
+  async createReport(@Body() dto: CreateReportDto, @Request() req) {
+    return this.reportsService.createReport(dto, req.user.id);
+  }
+
+  @Roles(Role.ADMIN, Role.CREATOR)
+  @Post('take')
+  async takeReport(@Body() dto: TakeReportDto, @Request() req) {
+    return this.reportsService.takeReport(dto, req.user.id);
+  }
+
+  @Roles(Role.ADMIN, Role.CREATOR)
+  @Post('confirm')
+  async confirmReport(@Body() dto: ConfirmReportDto, @Request() req) {
+    return this.reportsService.confirmReport(dto, req.user.id);
+  }
+
+  @Roles(Role.ADMIN, Role.CREATOR)
+  @Get('completed')
+  async getAllCompletedReports(){
+    return this.reportsService.getAllReports(true);
+  }
+
+  @Roles(Role.ADMIN, Role.CREATOR)
+  @Get('uncompleted')
+  async getAllUnCompletedReports(){
+    return this.reportsService.getAllReports(false);
   }
 }

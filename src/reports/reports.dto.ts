@@ -7,3 +7,10 @@ export class CreateReportDto {
     @IsString()
     text: string
 }
+
+export class TakeReportDto {
+    @IsMongoId()
+    reportId: string;
+}
+
+export class ConfirmReportDto extends TakeReportDto {}
