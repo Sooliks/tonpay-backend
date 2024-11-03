@@ -20,42 +20,49 @@ export class OrdersService {
             throw new BadRequestException("You can't buy your own product")
         }
         await this.moneyService.minusMoney(dto.userId, sale.price)
-        const product: string | undefined = sale.product.at(-1);
-        if (product) {
-            const products = sale.product.splice(sale.product.length - 1, 1);
-            const updatedSale = await this.prisma.sale.update({
-                where: { id: sale.id },
+        try {
+            const product: string | undefined = sale.product.at(-1);
+            if (product) {
+                const products = sale.product.splice(sale.product.length - 1, 1);
+                const updatedSale = await this.prisma.sale.update({
+                    where: { id: sale.id },
+                    data: {
+                        product: { set: products }
+                    }
+                })
+                if (updatedSale.product.length === 0) {
+                    await this.prisma.sale.update({ where: { id: sale.id }, data: { isPublished: false } })
+                }
+            }
+            const message = await this.chatService.createMessage({
+                recipientId: dto.userId,
+                senderId: sale.userId,
+                message: `The order has been created, confirm only after the order is fully completed. Don't forget to confirm it on the order page. ${product ? `\nAuto delivery: ${product}` : ''}`
+            }, true)
+            if (sale.autoMessage) {
+                await this.chatService.createMessage({
+                    recipientId: dto.userId,
+                    senderId: sale.userId,
+                    message: sale.autoMessage
+                })
+            }
+            await this.notificationsService.notifyUser(sale.userId, 'You have a new order', true)
+            const order = await this.prisma.order.create({
                 data: {
-                    product: { set: products }
+                    saleId: sale.id,
+                    customerId: dto.userId,
+                    amount: sale.price,
+                    product: product,
+                    sellerId: sale.userId
                 }
             })
-            if (updatedSale.product.length === 0) {
-                await this.prisma.sale.update({ where: { id: sale.id }, data: { isPublished: false } })
+            return {
+                order: order,
+                chatId: message.chatId
             }
-        }
-        const message = await this.chatService.createMessage({
-            recipientId: dto.userId,
-            senderId: sale.userId,
-            message: `The order has been created, confirm only after the order is fully completed. Don't forget to confirm it on the order page. ${product ? `\nAuto delivery: ${product}` : ''}`
-        }, true)
-        await this.chatService.createMessage({
-            recipientId: dto.userId,
-            senderId: sale.userId,
-            message: sale.autoMessage
-        })
-        await this.notificationsService.notifyUser(sale.userId, 'You have a new order', true)
-        const order = await this.prisma.order.create({
-            data: {
-                saleId: sale.id,
-                customerId: dto.userId,
-                amount: sale.price,
-                product: product,
-                sellerId: sale.userId
-            }
-        })
-        return {
-            order: order,
-            chatId: message.chatId
+        }catch (e) {
+            await this.moneyService.plusMoney(dto.userId, sale.price)
+            throw new BadRequestException("Unexpected error")
         }
     }
     async getMyPurchases(userId: string, count: number, skip?: number) {
@@ -65,7 +72,8 @@ export class OrdersService {
             skip: Number(skip),
             include: {
                 sale: true
-            }
+            },
+            orderBy: {createdAt: 'desc'}
         })
     }
     async getMySales(userId: string, count: number, skip?: number) {
@@ -75,7 +83,8 @@ export class OrdersService {
             skip: Number(skip),
             include: {
                 sale: true
-            }
+            },
+            orderBy: {createdAt: 'desc'}
         })
     }
     async getOrderById(orderId: string){

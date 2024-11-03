@@ -12,7 +12,7 @@ export class ChatService {
     constructor(private readonly prisma: PrismaService, private readonly cloudinary: CloudinaryService, private readonly notificationsService: NotificationsService, private readonly chatSocketService: ChatSocketService) {}
 
     async createMessage(dto: CreateMessageDto, isSystemMessage: boolean = false) {
-        if(!dto.message && dto.files.length === 0){
+        if(!dto.message && (!dto.files || dto.files.length === 0)){
             throw new BadRequestException('The message must contain text or files')
         }
         let chat: Chat = await this.prisma.chat.findFirst({
