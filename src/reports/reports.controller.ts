@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Request } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query, Request } from "@nestjs/common";
 import { ReportsService } from './reports.service';
 import { ConfirmReportDto, CreateReportDto, GetChatReportDto, TakeReportDto } from "./reports.dto";
 import { Roles } from "../decorators/role.decorator";
@@ -27,8 +27,8 @@ export class ReportsController {
 
   @Roles(Role.ADMIN, Role.CREATOR)
   @Get('completed')
-  async getAllCompletedReports(){
-    return this.reportsService.getAllReports(true);
+  async getAllCompletedReports(@Query('count') count: number, @Query('skip') skip: number){
+    return this.reportsService.getAllReports(true, count, skip);
   }
 
   @Roles(Role.ADMIN, Role.CREATOR)

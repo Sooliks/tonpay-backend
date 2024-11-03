@@ -2,6 +2,8 @@ import { Body, Controller, Get, Param, Post, Query, Request } from "@nestjs/comm
 import { OrdersService } from './orders.service';
 import { CreateFeedbackDto } from "../feedback/feedback.dto";
 import { ConfirmOrderDto, CreateOrderDto } from "./orders.dto";
+import { Roles } from "../decorators/role.decorator";
+import { Role } from "@prisma/client";
 
 @Controller('orders')
 export class OrdersController {
@@ -28,5 +30,11 @@ export class OrdersController {
   @Post('confirm')
   async confirmOrder(@Request() req, @Body() dto: ConfirmOrderDto) {
     return this.ordersService.confirmOrder(dto.orderId, req.user.id)
+  }
+
+  @Roles(Role.ADMIN, Role.CREATOR)
+  @Post('confirm/foradmin')
+  async confirmOrderForAdmin(@Request() req, @Body() dto: ConfirmOrderDto) {
+    return this.ordersService.confirmOrderForAdmins(dto.orderId)
   }
 }

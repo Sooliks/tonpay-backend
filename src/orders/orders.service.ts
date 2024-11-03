@@ -124,4 +124,7 @@ export class OrdersService {
         }, true)
         return order;
     }
+    async confirmOrderForAdmins(orderId: string) {
+        return this.prisma.order.update({where: {id: orderId}, data: {isCompleted: true}})
+    }
 }

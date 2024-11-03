@@ -40,14 +40,19 @@ export class ReportsService {
         })
     }
     async takeReport(dto: TakeReportDto, adminId: string){
-        return this.prisma.report.update({
-            where: {id: dto.reportId},
-            data: {
-                adminId: adminId
-            }
-        })
+        const report = await this.prisma.report.findUnique({where: {id: dto.reportId}})
+        if(!report.adminId || report.adminId === adminId) {
+            return this.prisma.report.update({
+                where: { id: dto.reportId },
+                data: {
+                    adminId: adminId
+                }
+            })
+        }
+        throw new BadRequestException('The report has already been taken by another administrator')
     }
     async confirmReport(dto: ConfirmReportDto, adminId: string){
+        await this.takeReport(dto, adminId)
         return this.prisma.report.update({
             where: {id: dto.reportId, adminId: adminId},
             data: {
@@ -56,15 +61,22 @@ export class ReportsService {
             include: {user: true}
         })
     }
-    async getAllReports(isCompleted: boolean){
+    async getAllReports(isCompleted: boolean, count?: number, skip?: number){
         return this.prisma.report.findMany({
             where: {
                 isCompleted: isCompleted,
             },
-            include: {user: true}
+            include: {
+                user: true,
+                admin: true
+            },
+            take: count ? Number(count) : undefined,
+            skip: skip ? Number(skip) : undefined,
+            orderBy: {createdAt: isCompleted ? 'desc' : 'asc'}
         });
     }
     async getChat(dto: GetChatReportDto, adminId: string){
+        await this.takeReport(dto, adminId)
         const report = await this.prisma.report.findUnique({
             where: {
                 id: dto.reportId

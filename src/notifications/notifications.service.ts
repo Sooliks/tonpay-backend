@@ -18,12 +18,12 @@ export class NotificationsService {
         }
         this.notificationsGateway.sendNotificationToAll(message);
     }
-    async notifyUser(userId: string, message: string, sendInTelegram: boolean = false) {
+    async notifyUser(userId: string, message: string, sendInTelegram: boolean = false, onlyTg: boolean = false) {
         if(sendInTelegram && !this.notificationsGateway.getConnectedUsers().has(userId)) {
             const {telegramId} = await this.prisma.user.findUnique({where: {id: userId}})
             await this.telegramBotService.sendMessage(telegramId, message)
         }
-        this.notificationsGateway.sendNotificationToUser(userId, message);
+        if(!onlyTg) this.notificationsGateway.sendNotificationToUser(userId, message);
     }
     async getCurrentOnline(){
         return this.notificationsGateway.getConnectedUsers().size;
