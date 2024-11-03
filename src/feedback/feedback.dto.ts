@@ -1,4 +1,4 @@
-import { IsInt, IsMongoId, IsOptional, IsString, Max, Min } from "class-validator";
+import { IsInt, IsMongoId, IsOptional, IsString, Max, MaxLength, Min } from "class-validator";
 
 export class CreateFeedbackDto {
   @IsMongoId()
@@ -11,5 +11,6 @@ export class CreateFeedbackDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(100)
   text?:string
 }

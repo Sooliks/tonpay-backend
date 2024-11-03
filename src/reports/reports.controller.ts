@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, Request } from "@nestjs/common";
 import { ReportsService } from './reports.service';
-import { ConfirmReportDto, CreateReportDto, TakeReportDto } from "./reports.dto";
+import { ConfirmReportDto, CreateReportDto, GetChatReportDto, TakeReportDto } from "./reports.dto";
 import { Roles } from "../decorators/role.decorator";
 import { Role } from "@prisma/client";
 
@@ -35,5 +35,11 @@ export class ReportsController {
   @Get('uncompleted')
   async getAllUnCompletedReports(){
     return this.reportsService.getAllReports(false);
+  }
+
+  @Roles(Role.ADMIN, Role.CREATOR)
+  @Post('getchat')
+  async getChat(@Body() dto: GetChatReportDto, @Request() req){
+    return this.reportsService.getChat(dto, req.user.id)
   }
 }

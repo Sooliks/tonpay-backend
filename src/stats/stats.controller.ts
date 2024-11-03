@@ -24,4 +24,10 @@ export class StatsController {
   async getCurrentOnline(){
     return this.notificationsService.getCurrentOnline()
   }
+
+  @Get('/counts')
+  @Roles(Role.CREATOR, Role.ADMIN)
+  async getCounts(){
+    return this.statsService.getCounts()
+  }
 }

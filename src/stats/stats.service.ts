@@ -38,4 +38,12 @@ export class StatsService {
             skip: Number(skip)
         })
     }
+    async getCounts(){
+        const countReports = await this.prisma.report.count({where: {isCompleted: false}})
+        const countSales = await this.prisma.sale.count({where: {isModerating: true}})
+        return {
+            countReports,
+            countSales
+        }
+    }
 }

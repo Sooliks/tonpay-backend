@@ -1,4 +1,4 @@
-import { ArrayMaxSize, IsArray, IsMongoId, IsNumber, IsOptional, IsString, Min } from "class-validator";
+import { ArrayMaxSize, IsArray, IsMongoId, IsNumber, IsOptional, IsString, MaxLength, Min } from "class-validator";
 import { Transform } from "class-transformer";
 export class CreateSaleDto {
   @Transform(({ value }) => parseFloat(value))
@@ -14,6 +14,7 @@ export class CreateSaleDto {
   title: string
 
   @IsString()
+  @MaxLength(500)
   description: string
 
   @IsMongoId()
@@ -32,6 +33,7 @@ export class CreateSaleDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(300)
   autoMessage?: string;
 }
 

@@ -127,7 +127,7 @@ export class ChatService {
                     include: {
                         sender: {
                             select:
-                                {photoUrl: true, nickname: true, id: true}
+                                {photoUrl: true, nickname: true, id: true, role: true}
                         }
                     },
                     take: Number(take),
