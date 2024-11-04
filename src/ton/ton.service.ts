@@ -5,13 +5,14 @@ import { Cron } from "@nestjs/schedule";
 import { TransactionType } from "@prisma/client";
 import { mnemonicToWalletKey } from "ton-crypto";
 import { ConfigService } from "@nestjs/config";
+import { NotificationsService } from "../notifications/notifications.service";
 
 @Injectable()
 export class TonService {
     private client: TonClient;
     private readonly fee: number;
     private readonly ourWalletAddress: Address;
-    constructor(private readonly prisma: PrismaService, private readonly configService: ConfigService) {
+    constructor(private readonly prisma: PrismaService, private readonly configService: ConfigService, private readonly notificationsService: NotificationsService) {
         this.fee = 10;
         this.client = new TonClient({
             endpoint: 'https://toncenter.com/api/v2/jsonRPC',
@@ -77,6 +78,7 @@ export class TonService {
                 currentSeqno = await walletContract.getSeqno();
                 countWaiting++;
             }
+            await this.notificationsService.notifyUser(userId, `Success withdraw, amount: ${amount} TON. Check your wallet.`, true)
         }
         catch (e) {
             await this.prisma.user.update({

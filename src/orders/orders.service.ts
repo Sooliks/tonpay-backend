@@ -19,6 +19,9 @@ export class OrdersService {
         if (sale.userId === dto.userId) {
             throw new BadRequestException("You can't buy your own product")
         }
+        if(sale.price !== dto.price) {
+            throw new BadRequestException("The price has changed")
+        }
         await this.moneyService.minusMoney(dto.userId, sale.price)
         try {
             const product: string | undefined = sale.product.at(-1);
