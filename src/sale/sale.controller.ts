@@ -70,4 +70,9 @@ export class SaleController {
   async setLastWatchingSale(@Body() dto: SetLastWatchingSaleIdDto,@Request() req){
     return this.saleService.setLastWatchingSaleId(dto.saleId, req.user.id)
   }
+
+  @Post('up')
+  async upSales(@Request() req){
+    return this.saleService.upSales(req.user.id);
+  }
 }

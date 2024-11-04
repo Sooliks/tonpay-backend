@@ -58,7 +58,8 @@ export class FeedbackService {
       where: {recipientId: userId},
       include: {user: true, order: {include: {sale: true}}},
       take: Number(count),
-      skip: Number(skip)
+      skip: Number(skip),
+      orderBy: {id: 'desc'}
     });
   }
 }

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 import { CreateSaleDto, DeleteSaleForAdminDto } from "./sale.dto";
 import { CloudinaryService } from "../cloudinary/cloudinary.service";
@@ -126,6 +126,7 @@ export class SaleService {
         autoMessage: saleDto.autoMessage
       }
     })
+    await this.prisma.user.update({where: {id: user.id}, data: {lastUpSales: new Date()}})
     let screenUrls: string[] = []
     for (let i = 0; i < saleDto.files.length; i++){
       const res =  await this.cloudinary.uploadImage(saleDto.files[i], `/tonpay/sale/${sale.id}`)
@@ -150,5 +151,45 @@ export class SaleService {
       return
     }
     return this.prisma.user.update({where: {id: userId}, data: {lastWatchingSaleId: saleId}})
+  }
+  private timeUntilFourHoursPassed(startDate?: Date): { hours: number; minutes: number; seconds: number } | null {
+    if(!startDate){
+      return null;
+    }
+    const FOUR_HOURS_IN_MS = 4 * 60 * 60 * 1000; // 4 часа в миллисекундах
+    const currentDate = new Date();
+    const elapsedTime = currentDate.getTime() - startDate.getTime();
+
+    // Если прошло 4 часа или более, возвращаем null
+    if (elapsedTime >= FOUR_HOURS_IN_MS) {
+      return null;
+    }
+
+    // Иначе считаем оставшееся время до 4 часов
+    const remainingTime = FOUR_HOURS_IN_MS - elapsedTime;
+    const hours = Math.floor(remainingTime / (60 * 60 * 1000));
+    const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
+    const seconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
+
+    return { hours, minutes, seconds };
+  }
+
+  async upSales(userId: string) {
+    const user = await this.prisma.user.findUnique({where: {id: userId}})
+    if(!user){
+      throw new NotFoundException('User not found')
+    }
+    const timeRemaining = this.timeUntilFourHoursPassed(user.lastUpSales);
+    if (timeRemaining) {
+      throw new BadRequestException(`${timeRemaining.hours} hours ${timeRemaining.minutes} min left`);
+    } else {
+      await this.prisma.sale.updateMany({
+        where: {userId: user.id},
+        data: {
+          lastUp: new Date()
+        }
+      })
+      return this.prisma.user.update({where: {id: user.id}, data: {lastUpSales: new Date()}})
+    }
   }
 }
