@@ -28,7 +28,7 @@ export class TonService {
         return amount - deduction;
     }
     async sendCoins(amount: number, address: string, userId: string) {
-        if(amount < 0.05){
+        if(amount < 0.01){
             throw new BadRequestException('The minimum amount is 0.05')
         }
         const amountWithFee = this.subtractPercentage(amount, this.fee);
@@ -183,6 +183,7 @@ export class TonService {
                             })
                         }
                     }
+                    await this.notificationsService.notifyUser(userId, `Your balance has been replenished by ${amount} TON.`, true)
                 }catch (e) {
                     continue
                 }
