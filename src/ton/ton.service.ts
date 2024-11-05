@@ -172,9 +172,9 @@ export class TonService {
                                     money: { increment: Number(amount) }
                                 }
                             })
+                            await this.notificationsService.notifyUser(userId, `Your balance has been replenished by ${amount} TON.`, true)
                         }
                     }
-                    await this.notificationsService.notifyUser(userId, `Your balance has been replenished by ${amount} TON.`, true)
                 }catch (e) {
                     continue
                 }
