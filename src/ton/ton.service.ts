@@ -28,7 +28,7 @@ export class TonService {
         return amount - deduction;
     }
     async sendCoins(amount: number, address: string, userId: string) {
-        if(amount < 0.01){
+        if(amount < 0.05){
             throw new BadRequestException('The minimum amount is 0.05')
         }
         const amountWithFee = this.subtractPercentage(amount, this.fee);
@@ -68,15 +68,9 @@ export class TonService {
                 ]
             });
             let currentSeqno = seqno;
-            let countWaiting = 0;
             while (currentSeqno == seqno) {
-                console.log("waiting for transaction to confirm...");
-                if (countWaiting >= 60) {
-                    throw new BadRequestException('The TON network is overloaded')
-                }
                 await this.sleep(1500);
                 currentSeqno = await walletContract.getSeqno();
-                countWaiting++;
             }
             await this.notificationsService.notifyUser(userId, `Success withdraw, amount: ${amount} TON. Check your wallet.`, true)
         }
@@ -118,20 +112,17 @@ export class TonService {
           throw new BadRequestException('Transaction is sending, other error..')
         }*/
     }
-    async findTransactions(userId: string, count: number, skip?: number){
+    async findTransactions(userId: string, count: number, skip: number){
         return this.prisma.transaction.findMany({
             where: {userId: userId},
             take: Number(count),
-            skip: skip ? Number(skip) : undefined,
+            skip: Number(skip),
             orderBy: [{id: 'desc'}]
         })
     }
-    @Cron('*/30 * * * * *') // Каждые 30 секунд
-    handleCron() {
-        //console.log('Проверка новых транзакций...');
-        this.checkNewTransactions().catch((e)=>{
-            //console.log(e)
-        });
+    @Cron('*/35 * * * * *') // Каждые 30 секунд
+    async handleCron() {
+        await this.checkNewTransactions();
     }
     bigIntToBuffer(data: bigint) {
         if (!data) {

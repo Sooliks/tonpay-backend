@@ -4,8 +4,9 @@ import { TonService } from './ton.service';
 @Controller('ton')
 export class TonController {
   constructor(private readonly tonService: TonService) {}
+
   @Get('transactions')
-  findTransactions(@Query('count') count: number, @Request() req, @Query('skip') skip?: number){
+  findTransactions(@Request() req, @Query('count') count: number, @Query('skip') skip: number){
     return this.tonService.findTransactions(req.user.id, count, skip);
   }
   @Post('withdraw')
