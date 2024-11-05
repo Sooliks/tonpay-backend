@@ -120,7 +120,7 @@ export class TonService {
             orderBy: [{id: 'desc'}]
         })
     }
-    @Cron('*/35 * * * * *') // Каждые 30 секунд
+    @Cron('*/25 * * * * *') // Каждые 30 секунд
     async handleCron() {
         await this.checkNewTransactions();
     }
@@ -141,7 +141,7 @@ export class TonService {
         try {
             const address = this.ourWalletAddress;
             const transactions = await this.client.getTransactions(address, {
-                limit: 50, lt: Date.now().toString()
+                limit: 5, lt: Date.now().toString()
             });
             for (const transaction of transactions) {
                 try {
