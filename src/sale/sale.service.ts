@@ -7,9 +7,30 @@ import { NotificationsService } from "../notifications/notifications.service";
 @Injectable()
 export class SaleService {
   constructor(private readonly prisma: PrismaService, private readonly cloudinary: CloudinaryService, private readonly feedbackService: FeedbackService, private readonly notificationsService: NotificationsService) {}
-  async findAllBySubScopeId(id: string, count: number, skip?: number){
+  async findAllBySubScopeId(id: string, count: number, skip?: number, search?: string){
+    const whereCondition: any = {
+      subScopeId: id,
+      isModerating: false,
+      isPublished: true,
+    };
+    if (search) {
+      whereCondition.OR = [
+        {
+          title: {
+            contains: search,
+            mode: 'insensitive'
+          }
+        },
+        {
+          description: {
+            contains: search,
+            mode: 'insensitive'
+          }
+        }
+      ];
+    }
     const sales = await this.prisma.sale.findMany({
-      where: { subScopeId: id, isModerating: false, isPublished: true },
+      where: whereCondition,
       include: {
         subScope: {
           include: {
@@ -159,18 +180,13 @@ export class SaleService {
     const FOUR_HOURS_IN_MS = 4 * 60 * 60 * 1000; // 4 часа в миллисекундах
     const currentDate = new Date();
     const elapsedTime = currentDate.getTime() - startDate.getTime();
-
-    // Если прошло 4 часа или более, возвращаем null
     if (elapsedTime >= FOUR_HOURS_IN_MS) {
       return null;
     }
-
-    // Иначе считаем оставшееся время до 4 часов
     const remainingTime = FOUR_HOURS_IN_MS - elapsedTime;
     const hours = Math.floor(remainingTime / (60 * 60 * 1000));
     const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
     const seconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
-
     return { hours, minutes, seconds };
   }
 

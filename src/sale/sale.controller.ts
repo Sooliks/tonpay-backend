@@ -33,8 +33,8 @@ export class SaleController {
 
   @PublicRoute()
   @Get('bysubscope/:id')
-  async getSalesBySubScopeId(@Param('id') id: string, @Query('count') count: number, @Query('skip') skip?: number){
-    return this.saleService.findAllBySubScopeId(id, count, skip)
+  async getSalesBySubScopeId(@Param('id') id: string, @Query('count') count: number, @Query('skip') skip?: number, @Query('search') search?: string){
+    return this.saleService.findAllBySubScopeId(id, count, skip, search)
   }
 
   @Get('my')
