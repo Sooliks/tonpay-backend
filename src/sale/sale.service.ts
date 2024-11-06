@@ -103,14 +103,14 @@ export class SaleService {
   }
 
   async create(saleDto: CreateSaleDto, userId: string){
-    const count = await this.prisma.sale.count({where: {userId: userId}})
+    const count = await this.prisma.sale.count({where: {userId: userId, isPublished: true}})
     const user = await this.prisma.user.findUnique({where: {id: userId}})
     if(!user)throw new BadRequestException('Not found user')
     if(user.isBanned){
 
     }
     if(!user.isPremium){
-      if(count >= 5){
+      if(count >= 10){
         throw new BadRequestException('For users without a premium, the number of sales is limited')
       }
     }
