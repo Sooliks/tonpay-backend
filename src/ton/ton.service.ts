@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 import { Address, fromNano, internal, TonClient, WalletContractV4 } from "ton";
 import { Cron } from "@nestjs/schedule";
@@ -13,7 +13,7 @@ export class TonService {
     private readonly fee: number;
     private readonly ourWalletAddress: Address;
     constructor(private readonly prisma: PrismaService, private readonly configService: ConfigService, private readonly notificationsService: NotificationsService) {
-        this.fee = 10;
+        this.fee = 15;
         this.client = new TonClient({
             endpoint: 'https://toncenter.com/api/v2/jsonRPC',
             apiKey: 'ea3449af5a3b4d4dfae328caa64e0ee315a4b829c46094586f33fa88e9d35bdc'
@@ -31,14 +31,17 @@ export class TonService {
         if(amount < 0.05){
             throw new BadRequestException('The minimum amount is 0.05')
         }
-        const amountWithFee = this.subtractPercentage(amount, this.fee);
+        const user = await this.prisma.user.findUnique({where: {id: userId}})
+        if(!user){
+            throw new NotFoundException('User not found')
+        }
+        if(user.money < amount){
+            throw new BadRequestException('Insufficient funds')
+        }
+        const amountWithFee = this.subtractPercentage(amount, user.isSubscribed ? 10 : this.fee);
         const balance = Number(fromNano(await this.client.getBalance(this.ourWalletAddress)));
         if(balance < amountWithFee){
             throw new BadRequestException('Sorry, there is not enough balance on our wallet right now')
-        }
-        const user = await this.prisma.user.findUnique({where: {id: userId}})
-        if(user.money < amount){
-            throw new BadRequestException('Insufficient funds')
         }
         const mnemonic = this.configService.get<string>('SID');
         const key = await mnemonicToWalletKey(mnemonic.split(" "));

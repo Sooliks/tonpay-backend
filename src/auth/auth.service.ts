@@ -3,10 +3,11 @@ import { parse, validate } from "@telegram-apps/init-data-node";
 import { PrismaService } from "../prisma.service";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
+import { TelegramBotService } from "../telegram-bot/telegram-bot.service";
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService, private readonly configService: ConfigService,private readonly jwtService: JwtService) {}
+  constructor(private readonly prisma: PrismaService, private readonly configService: ConfigService,private readonly jwtService: JwtService, private readonly telegramBotService: TelegramBotService) {}
   async login(initData: string, refId?: string) {
     const botToken = this.configService.get<string>('TELEGRAMBOT_TOKEN')
 
@@ -83,7 +84,8 @@ export class AuthService {
         data: {
           lastOnline: currentDate,
           photoUrl: await this.getAvatarUrl(parsedData.user.id),
-          languageCode: parsedData.user.languageCode
+          languageCode: parsedData.user.languageCode,
+          isSubscribed: await this.telegramBotService.isUserSubscribed(user.telegramId)
         }
       })
       return user

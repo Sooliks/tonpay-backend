@@ -6,6 +6,7 @@ import { APP_GUARD } from "@nestjs/core";
 import { PrismaService } from "../prisma.service";
 import { ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
+import { TelegramBotService } from "../telegram-bot/telegram-bot.service";
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { JwtModule } from "@nestjs/jwt";
   providers: [AuthService,{
     provide: APP_GUARD,
     useClass: AuthGuard,
-  }, PrismaService, ConfigService],
+  }, PrismaService, ConfigService, TelegramBotService],
 
 })
 export class AuthModule {}

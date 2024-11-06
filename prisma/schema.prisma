@@ -34,6 +34,7 @@ model User {
   languageCode       String?
   reports            Report[]      @relation("MyReports")
   reportsAdmin       Report[]      @relation("Admin")
+  isSubscribed       Boolean       @default(false)
 }
 
 model Transaction {
