@@ -121,8 +121,8 @@ export class TonService {
         })
     }
     @Cron('*/30 * * * * *') // Каждые 30 секунд
-    async handleCron() {
-        await this.checkNewTransactions();
+    handleCron() {
+        this.checkNewTransactions();
     }
     bigIntToBuffer(data: bigint) {
         if (!data) {
