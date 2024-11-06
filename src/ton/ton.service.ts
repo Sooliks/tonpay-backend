@@ -120,7 +120,7 @@ export class TonService {
             orderBy: [{id: 'desc'}]
         })
     }
-    @Cron('*/25 * * * * *') // Каждые 30 секунд
+    @Cron('*/30 * * * * *') // Каждые 30 секунд
     async handleCron() {
         await this.checkNewTransactions();
     }
