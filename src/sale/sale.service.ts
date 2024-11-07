@@ -114,14 +114,29 @@ export class SaleService {
 
   async delete(dto: DeleteSaleForAdminDto){
     const sale = await this.prisma.sale.findUnique({where: {id: dto.id}})
-    if(sale.screenUrls.length > 0){
-      sale.screenUrls.map(async screen => {
-        await this.cloudinary.deleteImage(screen)
-      })
+    if(!sale){
+      throw new NotFoundException("Sale not found")
     }
-    const textNotify = dto.reason ? `Your sale "${sale.title}" did not pass moderation and was deleted for a reason: ${dto.reason}` : `Your sale "${sale.title}" did not pass moderation and was deleted.`;
-    await this.notificationsService.notifyUser(sale.userId, textNotify, true)
-    return this.prisma.sale.delete({where: {id: dto.id}})
+    if(dto.isDecline){
+      const textNotify = dto.reason ? `Your sale "${sale.title}" did not pass moderation and was declined for a reason: ${dto.reason}` : `Your sale "${sale.title}" did not pass moderation and was decline.`;
+      await this.notificationsService.notifyUser(sale.userId, textNotify, true)
+      return this.prisma.sale.update({
+        where: { id: dto.id },
+        data: {
+          isModerating: false,
+          isPublished: false
+        }
+      })
+    }else {
+      if (sale.screenUrls.length > 0) {
+        sale.screenUrls.map(async screen => {
+          await this.cloudinary.deleteImage(screen)
+        })
+      }
+      const textNotify = dto.reason ? `Your sale "${sale.title}" did not pass moderation and was deleted for a reason: ${dto.reason}` : `Your sale "${sale.title}" did not pass moderation and was deleted.`;
+      await this.notificationsService.notifyUser(sale.userId, textNotify, true)
+      return this.prisma.sale.delete({ where: { id: dto.id } })
+    }
   }
 
   async update(saleDto: UpdateSaleDto, userId: string){
@@ -231,5 +246,19 @@ export class SaleService {
       })
       return this.prisma.user.update({where: {id: user.id}, data: {lastUpSales: new Date()}})
     }
+  }
+
+  async deleteForUser(saleId: string, userId: string) {
+    const orders = await this.prisma.order.findMany({where: {saleId: saleId, isCompleted: false, isCancelled: false}})
+    if(orders.length > 0){
+      throw new BadRequestException('You cannot delete a sale with an active order')
+    }
+    const sale = await this.prisma.sale.findUnique({where: {id: saleId}})
+    if (sale.screenUrls.length > 0) {
+      sale.screenUrls.map(async screen => {
+        await this.cloudinary.deleteImage(screen)
+      })
+    }
+    return this.prisma.sale.delete({ where: { id: saleId, userId: userId } })
   }
 }

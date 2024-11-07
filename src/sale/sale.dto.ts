@@ -1,4 +1,14 @@
-import { ArrayMaxSize, IsArray, IsMongoId, IsNumber, IsOptional, IsString, MaxLength, Min } from "class-validator";
+import {
+  ArrayMaxSize,
+  IsArray,
+  IsBoolean,
+  IsMongoId,
+  IsNumber,
+  IsOptional,
+  IsString, Max,
+  MaxLength,
+  Min
+} from "class-validator";
 import { Transform } from "class-transformer";
 export class CreateSaleDto {
   @Transform(({ value }) => parseFloat(value))
@@ -23,7 +33,7 @@ export class CreateSaleDto {
   @IsOptional()
   @Transform(({ value }) => parseFloat(value))
   @IsNumber()
-  @Min(0.05)
+  @Min(1)
   currency?: number
 
   @IsOptional()
@@ -43,6 +53,7 @@ export class UpdateSaleDto {
   @Transform(({ value }) => parseFloat(value))
   @IsNumber()
   @Min(0.05)
+  @Max(1000)
   @IsOptional()
   price?: number
 
@@ -62,7 +73,7 @@ export class UpdateSaleDto {
   @IsOptional()
   @Transform(({ value }) => parseFloat(value))
   @IsNumber()
-  @Min(0.05)
+  @Min(1)
   currency?: number
 
   @IsOptional()
@@ -79,10 +90,18 @@ export class DeleteSaleForAdminDto {
   @IsOptional()
   @IsString()
   reason?: string
+
+  @IsBoolean()
+  isDecline: boolean
 }
 
 export class SetLastWatchingSaleIdDto {
   @IsMongoId()
   saleId: string
+}
+
+export class DeleteSaleForUserDto {
+  @IsMongoId()
+  id: string
 }
 

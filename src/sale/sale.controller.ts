@@ -9,7 +9,13 @@ import {
   UseInterceptors
 } from "@nestjs/common";
 import { SaleService } from './sale.service';
-import { CreateSaleDto, DeleteSaleForAdminDto, SetLastWatchingSaleIdDto, UpdateSaleDto } from "./sale.dto";
+import {
+  CreateSaleDto,
+  DeleteSaleForAdminDto,
+  DeleteSaleForUserDto,
+  SetLastWatchingSaleIdDto,
+  UpdateSaleDto
+} from "./sale.dto";
 import { PublicRoute } from "../decorators/public-route.decorator";
 import { Roles } from "../decorators/role.decorator";
 import { Role } from "@prisma/client";
@@ -63,6 +69,11 @@ export class SaleController {
   @Roles(Role.ADMIN, Role.CREATOR)
   async delete(@Body() dto: DeleteSaleForAdminDto){
     return this.saleService.delete(dto);
+  }
+
+  @Delete('deleteforuser')
+  async deleteForUser(@Body() dto: DeleteSaleForUserDto, @Request() req){
+    return this.saleService.deleteForUser(dto.id, req.user.id);
   }
 
   @Post('publish/:id')
