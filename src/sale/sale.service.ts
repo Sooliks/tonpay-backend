@@ -125,6 +125,10 @@ export class SaleService {
   }
 
   async update(saleDto: UpdateSaleDto, userId: string){
+    const orders = await this.prisma.order.findMany({where: {saleId: saleDto.id, isCompleted: false, isCancelled: false}})
+    if(orders.length > 0){
+      throw new BadRequestException('You cannot edit a sale with an active order')
+    }
     return this.prisma.sale.update({
       where: {
         userId: userId,
