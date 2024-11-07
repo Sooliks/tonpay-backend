@@ -9,7 +9,7 @@ import {
   UseInterceptors
 } from "@nestjs/common";
 import { SaleService } from './sale.service';
-import { CreateSaleDto, DeleteSaleForAdminDto, SetLastWatchingSaleIdDto } from "./sale.dto";
+import { CreateSaleDto, DeleteSaleForAdminDto, SetLastWatchingSaleIdDto, UpdateSaleDto } from "./sale.dto";
 import { PublicRoute } from "../decorators/public-route.decorator";
 import { Roles } from "../decorators/role.decorator";
 import { Role } from "@prisma/client";
@@ -52,6 +52,11 @@ export class SaleController {
   async create(@Body() dto: CreateSaleDto, @Request() req, @UploadedFiles() files?: Array<Express.Multer.File>){
     dto.files = files;
     return this.saleService.create(dto, req.user.id)
+  }
+
+  @Post('update')
+  async update(@Body() dto: UpdateSaleDto, @Request() req){
+    return this.saleService.update(dto, req.user.id);
   }
 
   @Delete()

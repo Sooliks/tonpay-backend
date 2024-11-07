@@ -36,6 +36,41 @@ export class CreateSaleDto {
   @MaxLength(300)
   autoMessage?: string;
 }
+export class UpdateSaleDto {
+  @IsMongoId()
+  id: string;
+
+  @Transform(({ value }) => parseFloat(value))
+  @IsNumber()
+  @Min(0.05)
+  @IsOptional()
+  price?: number
+
+  @IsOptional()
+  @IsArray()
+  product?: string[]
+
+  @IsString()
+  @IsOptional()
+  title?: string
+
+  @IsString()
+  @MaxLength(500)
+  @IsOptional()
+  description?: string
+
+  @IsOptional()
+  @Transform(({ value }) => parseFloat(value))
+  @IsNumber()
+  @Min(0.05)
+  currency?: number
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(300)
+  autoMessage?: string;
+}
+
 
 export class DeleteSaleForAdminDto {
   @IsMongoId()

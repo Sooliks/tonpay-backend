@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
-import { CreateSaleDto, DeleteSaleForAdminDto } from "./sale.dto";
+import { CreateSaleDto, DeleteSaleForAdminDto, UpdateSaleDto } from "./sale.dto";
 import { CloudinaryService } from "../cloudinary/cloudinary.service";
 import { FeedbackService } from "../feedback/feedback.service";
 import { NotificationsService } from "../notifications/notifications.service";
@@ -93,6 +93,7 @@ export class SaleService {
         orders: true,
         lastUp: true,
         autoMessage: true,
+        product: true
       },
       orderBy: [{lastUp: 'desc'}]
     })
@@ -121,6 +122,25 @@ export class SaleService {
     const textNotify = dto.reason ? `Your sale "${sale.title}" did not pass moderation and was deleted for a reason: ${dto.reason}` : `Your sale "${sale.title}" did not pass moderation and was deleted.`;
     await this.notificationsService.notifyUser(sale.userId, textNotify, true)
     return this.prisma.sale.delete({where: {id: dto.id}})
+  }
+
+  async update(saleDto: UpdateSaleDto, userId: string){
+    return this.prisma.sale.update({
+      where: {
+        userId: userId,
+        id: saleDto.id
+      },
+      data: {
+        price: saleDto.price,
+        product: saleDto.product,
+        title: saleDto.title,
+        description: saleDto.description,
+        currency: saleDto.currency,
+        autoMessage: saleDto.autoMessage,
+        isPublished: false,
+        isModerating: true
+      }
+    })
   }
 
   async create(saleDto: CreateSaleDto, userId: string){
