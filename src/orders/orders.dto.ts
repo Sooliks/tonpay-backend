@@ -16,3 +16,5 @@ export class ConfirmOrderDto {
     @IsMongoId()
     orderId: string
 }
+
+export class CancelOrderDto extends ConfirmOrderDto {}

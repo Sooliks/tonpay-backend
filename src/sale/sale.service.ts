@@ -163,7 +163,7 @@ export class SaleService {
   }
 
   async create(saleDto: CreateSaleDto, userId: string){
-    const count = await this.prisma.sale.count({where: {userId: userId, isPublished: true}})
+    const count = await this.prisma.sale.count({where: {userId: userId}})
     const user = await this.prisma.user.findUnique({where: {id: userId}})
     if(!user)throw new BadRequestException('Not found user')
     if(user.isBanned){

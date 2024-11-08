@@ -24,23 +24,24 @@ export class OrdersService {
         }
         await this.moneyService.minusMoney(dto.userId, sale.price)
         try {
-            const product: string | undefined = sale.product.at(-1);
+            const products = sale.product;
+            const product: string | undefined = products.pop();
             if (product) {
-                const products = sale.product.splice(sale.product.length - 1, 1);
                 const updatedSale = await this.prisma.sale.update({
                     where: { id: sale.id },
                     data: {
-                        product: { set: products }
+                        product: products
                     }
                 })
                 if (updatedSale.product.length === 0) {
+                    await this.notificationsService.notifyUser(sale.userId, `Your sale "${sale.title}" has run out of items. Add new products or leave it empty and submit it for re-moderation.`, true)
                     await this.prisma.sale.update({ where: { id: sale.id }, data: { isPublished: false } })
                 }
             }
             const message = await this.chatService.createMessage({
                 recipientId: dto.userId,
                 senderId: sale.userId,
-                message: `The order has been created, confirm only after the order is fully completed. Don't forget to confirm it on the order page. ${product ? `\nAuto delivery: ${product}` : ''}`
+                message: `The order has been created, confirm only after the order is fully completed. Don't forget to confirm it on the order page. ${product ? `\n\n\n\nAuto delivery: ${product}` : ''}`
             }, true)
             if (sale.autoMessage) {
                 await this.chatService.createMessage({
@@ -115,9 +116,6 @@ export class OrdersService {
                 isCompleted: true
             }
         })
-        if(!order){
-            throw new NotFoundException("No order found")
-        }
         await this.moneyService.plusMoney(order.sellerId, order.amount)
         await this.notificationsService.notifyUser(order.sellerId, `The user has confirmed the order #${order.id}`, true)
         await this.chatService.createMessage({
@@ -127,7 +125,56 @@ export class OrdersService {
         }, true)
         return order;
     }
-    async confirmOrderForAdmins(orderId: string) {
-        return this.prisma.order.update({where: {id: orderId}, data: {isCompleted: true}})
+    async confirmOrderForAdmins(orderId: string, adminId: string) {
+        let order = await this.prisma.order.findUnique({where: {id: orderId}});
+        if(!order){
+            throw new NotFoundException("No order found")
+        }
+        if(order.isCompleted || order.isCancelled){
+            throw new NotFoundException("The order has already been cancelled or confirmed")
+        }
+        order = await this.prisma.order.update({where: {id: orderId}, data: {isCompleted: true}})
+        await this.moneyService.plusMoney(order.sellerId, order.amount)
+        await this.notificationsService.notifyUser(order.sellerId, `The order #${order.id} has been confirmed by the administrator.`, true, true)
+        await this.notificationsService.notifyUser(order.customerId, `The order #${order.id} has been confirmed by the administrator.`, true, true)
+        return order;
+    }
+
+    async cancelOrder(orderId: string, userId: string) {
+        let order = await this.prisma.order.findUnique({where: {id: orderId, sellerId: userId}});
+        if(!order){
+            throw new NotFoundException("No order found")
+        }
+        if(order.isCompleted || order.isCancelled){
+            throw new NotFoundException("The order has already been cancelled or confirmed")
+        }
+        order = await this.prisma.order.update({
+            where: {sellerId: userId, id: orderId},
+            data: {
+                isCancelled: true
+            }
+        })
+        await this.moneyService.plusMoney(order.customerId, order.amount)
+        await this.notificationsService.notifyUser(order.customerId, `The user has cancelled the order #${order.id}`, true)
+        await this.chatService.createMessage({
+            recipientId: order.customerId,
+            senderId: order.sellerId,
+            message: `Order ${order.id} has been cancelled`
+        }, true)
+        return order;
+    }
+    async cancelOrderForAdmins(orderId: string, adminId: string) {
+        let order = await this.prisma.order.findUnique({where: {id: orderId}});
+        if(!order){
+            throw new NotFoundException("No order found")
+        }
+        if(order.isCompleted || order.isCancelled){
+            throw new NotFoundException("The order has already been cancelled or confirmed")
+        }
+        order = await this.prisma.order.update({where: {id: orderId}, data: {isCancelled: true}})
+        await this.moneyService.plusMoney(order.customerId, order.amount)
+        await this.notificationsService.notifyUser(order.customerId, `The order #${order.id} has been cancelled by the administrator.`, true, true)
+        await this.notificationsService.notifyUser(order.sellerId, `The order #${order.id} has been cancelled by the administrator.`, true, true)
+        return order;
     }
 }
