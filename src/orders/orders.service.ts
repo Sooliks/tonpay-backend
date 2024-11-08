@@ -121,7 +121,7 @@ export class OrdersService {
         await this.chatService.createMessage({
             recipientId: order.sellerId,
             senderId: order.customerId,
-            message: `Order ${order.id} has been confirmed`
+            message: `Order #${order.id} has been confirmed`
         }, true)
         return order;
     }
@@ -159,7 +159,7 @@ export class OrdersService {
         await this.chatService.createMessage({
             recipientId: order.customerId,
             senderId: order.sellerId,
-            message: `Order ${order.id} has been cancelled`
+            message: `Order #${order.id} has been cancelled`
         }, true)
         return order;
     }

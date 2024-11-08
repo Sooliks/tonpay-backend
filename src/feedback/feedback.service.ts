@@ -25,6 +25,9 @@ export class FeedbackService {
     if(!order){
       throw new NotFoundException("No order found")
     }
+    if(order.isCancelled){
+      throw new BadRequestException('Order was cancelled')
+    }
     if(order.feedback){
       throw new NotFoundException("A review has already been left for this order")
     }
