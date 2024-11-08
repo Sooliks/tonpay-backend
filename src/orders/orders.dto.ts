@@ -11,8 +11,6 @@ export class CreateOrderDto {
     @IsNumber()
     price: number
 }
-
-
 export class ConfirmOrderDto {
     @IsMongoId()
     orderId: string
