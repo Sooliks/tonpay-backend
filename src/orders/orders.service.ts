@@ -135,8 +135,8 @@ export class OrdersService {
         }
         order = await this.prisma.order.update({where: {id: orderId}, data: {isCompleted: true}})
         await this.moneyService.plusMoney(order.sellerId, order.amount)
-        await this.notificationsService.notifyUser(order.sellerId, `The order #${order.id} has been confirmed by the administrator.`, true, true)
-        await this.notificationsService.notifyUser(order.customerId, `The order #${order.id} has been confirmed by the administrator.`, true, true)
+        await this.notificationsService.notifyUser(order.sellerId, `The order #${order.id} has been confirmed by the administrator.`, true)
+        await this.notificationsService.notifyUser(order.customerId, `The order #${order.id} has been confirmed by the administrator.`, true)
         return order;
     }
 
