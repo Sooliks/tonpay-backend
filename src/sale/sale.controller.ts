@@ -91,4 +91,10 @@ export class SaleController {
   async upSales(@Request() req){
     return this.saleService.upSales(req.user.id);
   }
+
+  @PublicRoute()
+  @Get('lastsales')
+  async getLastSales() {
+    return this.saleService.getLastSales();
+  }
 }

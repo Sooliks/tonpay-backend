@@ -262,4 +262,23 @@ export class SaleService {
     }
     return this.prisma.sale.delete({ where: { id: saleId, userId: userId } })
   }
+
+  async getLastSales() {
+    return this.prisma.sale.findMany({
+      where: {
+        isPublished: true,
+        isModerating: false
+      },
+      orderBy: [{ lastUp: 'desc' }],
+      take: 20,
+      include: {
+        subScope: {
+          include: {
+            scope: true,
+          },
+        },
+        user: true,
+      }
+    })
+  }
 }
