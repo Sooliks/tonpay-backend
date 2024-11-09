@@ -5,10 +5,11 @@ import { PrismaService } from "../prisma.service";
 import { CloudinaryService } from "../cloudinary/cloudinary.service";
 import { FeedbackModule } from "../feedback/feedback.module";
 import { NotificationsModule } from "../notifications/notifications.module";
+import { TelegramBotService } from "../telegram-bot/telegram-bot.service";
 
 @Module({
   imports: [FeedbackModule, NotificationsModule],
   controllers: [SaleController],
-  providers: [SaleService, PrismaService, CloudinaryService],
+  providers: [SaleService, PrismaService, CloudinaryService, TelegramBotService],
 })
 export class SaleModule {}

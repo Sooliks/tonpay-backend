@@ -4,9 +4,10 @@ import { CreateSaleDto, DeleteSaleForAdminDto, UpdateSaleDto } from "./sale.dto"
 import { CloudinaryService } from "../cloudinary/cloudinary.service";
 import { FeedbackService } from "../feedback/feedback.service";
 import { NotificationsService } from "../notifications/notifications.service";
+import { TelegramBotService } from "../telegram-bot/telegram-bot.service";
 @Injectable()
 export class SaleService {
-  constructor(private readonly prisma: PrismaService, private readonly cloudinary: CloudinaryService, private readonly feedbackService: FeedbackService, private readonly notificationsService: NotificationsService) {}
+  constructor(private readonly prisma: PrismaService, private readonly cloudinary: CloudinaryService, private readonly feedbackService: FeedbackService, private readonly notificationsService: NotificationsService, private readonly telegramBotService: TelegramBotService) {}
   async findAllBySubScopeId(id: string, count: number, skip?: number, search?: string){
     const whereCondition: any = {
       subScopeId: id,
@@ -113,13 +114,13 @@ export class SaleService {
   }
 
   async delete(dto: DeleteSaleForAdminDto){
-    const sale = await this.prisma.sale.findUnique({where: {id: dto.id}})
+    const sale = await this.prisma.sale.findUnique({where: {id: dto.id}, include: {user: true}})
     if(!sale){
       throw new NotFoundException("Sale not found")
     }
     if(dto.isDecline){
       const textNotify = dto.reason ? `Your sale "${sale.title}" did not pass moderation and was declined for a reason: ${dto.reason}` : `Your sale "${sale.title}" did not pass moderation and was decline.`;
-      await this.notificationsService.notifyUser(sale.userId, textNotify, true)
+      await this.telegramBotService.sendMessage(sale.user.telegramId, textNotify)
       return this.prisma.sale.update({
         where: { id: dto.id },
         data: {
@@ -134,7 +135,7 @@ export class SaleService {
         })
       }
       const textNotify = dto.reason ? `Your sale "${sale.title}" did not pass moderation and was deleted for a reason: ${dto.reason}` : `Your sale "${sale.title}" did not pass moderation and was deleted.`;
-      await this.notificationsService.notifyUser(sale.userId, textNotify, true)
+      await this.telegramBotService.sendMessage(sale.user.telegramId, textNotify)
       return this.prisma.sale.delete({ where: { id: dto.id } })
     }
   }
