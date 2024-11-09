@@ -173,8 +173,8 @@ export class OrdersService {
         }
         order = await this.prisma.order.update({where: {id: orderId}, data: {isCancelled: true}})
         await this.moneyService.plusMoney(order.customerId, order.amount)
-        await this.notificationsService.notifyUser(order.customerId, `The order #${order.id} has been cancelled by the administrator.`, true, true)
-        await this.notificationsService.notifyUser(order.sellerId, `The order #${order.id} has been cancelled by the administrator.`, true, true)
+        await this.notificationsService.notifyUser(order.customerId, `The order #${order.id} has been cancelled by the administrator.`, true)
+        await this.notificationsService.notifyUser(order.sellerId, `The order #${order.id} has been cancelled by the administrator.`, true)
         return order;
     }
 }
