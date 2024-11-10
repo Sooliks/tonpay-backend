@@ -94,7 +94,8 @@ export class SaleService {
         orders: true,
         lastUp: true,
         autoMessage: true,
-        product: true
+        product: true,
+        userId: true
       },
       orderBy: [{lastUp: 'desc'}]
     })
@@ -264,7 +265,7 @@ export class SaleService {
   }
 
   async getLastSales() {
-    return this.prisma.sale.findMany({
+    const sales = await this.prisma.sale.findMany({
       where: {
         isPublished: true,
         isModerating: false
@@ -280,5 +281,10 @@ export class SaleService {
         user: true,
       }
     })
+    const salesWithoutProduct = sales.map((sale) => {
+      const { product, ...saleWithoutProduct } = sale;
+      return saleWithoutProduct;
+    });
+    return salesWithoutProduct;
   }
 }
