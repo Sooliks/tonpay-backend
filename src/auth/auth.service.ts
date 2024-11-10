@@ -30,7 +30,7 @@ export class AuthService {
       throw new UnauthorizedException()
     }
   }
-  async getAvatarUrl(telegramId: number): Promise<string | null>{
+  async getAvatarUrl(telegramId: number): Promise<string | null> {
     try {
       const botToken = this.configService.get<string>('TELEGRAMBOT_TOKEN');
       const response = await fetch(`https://api.telegram.org/bot${botToken}/getUserProfilePhotos?user_id=${telegramId}`);
@@ -58,7 +58,12 @@ export class AuthService {
       where: {telegramId: telegramId}
     })
     if (!user) {
-      const avatarUrl = await this.getAvatarUrl(telegramId) || undefined;
+      let avatarUrl: string | undefined | null = undefined;
+      try {
+        avatarUrl = await this.getAvatarUrl(telegramId) || undefined;
+      }catch (e) {
+
+      }
       user = await this.prisma.user.create({
         data: {
           telegramId: telegramId,
