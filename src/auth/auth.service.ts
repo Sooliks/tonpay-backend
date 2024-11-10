@@ -17,7 +17,7 @@ export class AuthService {
       })
 
       const parsedData = parse(initData)
-      const user = await this.findOrCreateUser(parsedData.user.id, parsedData.user.username, refId, parsedData.user.languageCode)
+      const user = await this.findOrCreateUser(parsedData.user.id, parsedData.user?.username || "No nick", refId, parsedData.user.languageCode)
       if(user.isBanned === true) {
         throw new UnauthorizedException('You banned')
       }
