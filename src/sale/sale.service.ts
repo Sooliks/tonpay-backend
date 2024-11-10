@@ -46,7 +46,7 @@ export class SaleService {
     });
     // Удаляем поле product у каждой записи
     const salesWithoutProduct = sales.map((sale) => {
-      const { product, ...saleWithoutProduct } = sale;
+      const { product, autoMessage, ...saleWithoutProduct } = sale;
       return saleWithoutProduct;
     });
     return salesWithoutProduct;
@@ -68,6 +68,7 @@ export class SaleService {
     const user = {...sale.user, averageRating: await this.feedbackService.getAverageRating(sale.user.myFeedbacks)}
     sale.user = user
     delete sale.product;
+    delete sale.autoMessage;
     return sale
   }
   async findAllByUserId(userId: string, isPublished?: boolean) {
@@ -93,7 +94,6 @@ export class SaleService {
         screenUrls: true,
         orders: true,
         lastUp: true,
-        autoMessage: true,
         product: true,
         userId: true
       },
@@ -282,7 +282,7 @@ export class SaleService {
       }
     })
     const salesWithoutProduct = sales.map((sale) => {
-      const { product, ...saleWithoutProduct } = sale;
+      const { product, autoMessage, ...saleWithoutProduct } = sale;
       return saleWithoutProduct;
     });
     return salesWithoutProduct;
