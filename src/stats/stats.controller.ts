@@ -18,6 +18,11 @@ export class StatsController {
   async getUsers(@Query('count') count: number, @Query('skip') skip: number){
     return this.statsService.getUsers(count, skip);
   }
+  @Get('/users/count')
+  @Roles(Role.CREATOR, Role.ADMIN)
+  async getCountUsers(){
+    return this.statsService.getCountUsers();
+  }
 
   @Get('/currentonline')
   @Roles(Role.CREATOR, Role.ADMIN)

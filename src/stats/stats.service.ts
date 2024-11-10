@@ -46,4 +46,7 @@ export class StatsService {
             countSales
         }
     }
+    async getCountUsers() {
+        return this.prisma.user.count({where: {role: Role.USER}})
+    }
 }
