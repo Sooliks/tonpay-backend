@@ -9,6 +9,17 @@ export class TelegramBotService {
     constructor(private readonly configService: ConfigService) {
         this.bot = new TelegramBot(this.configService.get<string>('TELEGRAMBOT_TOKEN'), { polling: true });
         this.channelId = this.configService.get<string>('TELEGRAM_CHANNEL_ID');
+
+        this.bot.onText(/\/start/, async (msg) => {
+            const chatId = msg.chat.id;
+            const isSubscribed = await this.isUserSubscribed(chatId);
+
+            if (isSubscribed) {
+                await this.sendMessage(chatId, 'Start here - https://t.me/PayOnTonBot/app');
+            } else {
+                await this.sendMessage(chatId, 'Start here - https://t.me/PayOnTonBot/app \nSubscribe to our Telegram channel - https://t.me/payonton');
+            }
+        });
     }
     async sendMessage(chatId: number | string, message: string): Promise<TelegramBot.Message> {
         try {
