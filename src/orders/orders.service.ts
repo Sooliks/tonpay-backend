@@ -22,9 +22,20 @@ export class OrdersService {
         if(sale.price !== dto.price) {
             throw new BadRequestException("The price has changed")
         }
-        await this.moneyService.minusMoney(dto.userId, sale.price)
+        if(sale.currency){
+            if(sale.currency < dto.count){
+                throw new BadRequestException("The seller cannot sell that much currency")
+            }
+        }
+        if(sale.product.length > 0) {
+            if(dto.count > 1){
+                throw new BadRequestException("You can't buy multiple products with auto-delivery at once")
+            }
+        }
+        await this.moneyService.minusMoney(dto.userId, sale.price * dto.count)
         try {
             const products = sale.product;
+
             const product: string | undefined = products.pop();
             if (product) {
                 const updatedSale = await this.prisma.sale.update({
@@ -38,6 +49,7 @@ export class OrdersService {
                     await this.prisma.sale.update({ where: { id: sale.id }, data: { isPublished: false } })
                 }
             }
+
             const message = await this.chatService.createMessage({
                 recipientId: dto.userId,
                 senderId: sale.userId,
@@ -55,9 +67,10 @@ export class OrdersService {
                 data: {
                     saleId: sale.id,
                     customerId: dto.userId,
-                    amount: sale.price,
+                    amount: sale.price * dto.count,
                     product: product,
-                    sellerId: sale.userId
+                    sellerId: sale.userId,
+                    count: dto.count
                 }
             })
             return {
@@ -65,7 +78,7 @@ export class OrdersService {
                 chatId: message.chatId
             }
         }catch (e) {
-            await this.moneyService.plusMoney(dto.userId, sale.price)
+            await this.moneyService.plusMoney(dto.userId, sale.price * dto.count)
             throw new BadRequestException("Unexpected error")
         }
     }
@@ -92,7 +105,7 @@ export class OrdersService {
         })
     }
     async getOrderById(orderId: string){
-        return this.prisma.order.findUnique({
+        const order = await this.prisma.order.findUnique({
             where: { id: orderId },
             include: {
                 sale: true,
@@ -101,6 +114,8 @@ export class OrdersService {
                 feedback: true
             }
         })
+        delete order.product
+        return order;
     }
     async confirmOrder(orderId: string, userId: string) {
         let order = await this.prisma.order.findUnique({where: {id: orderId, customerId: userId}});

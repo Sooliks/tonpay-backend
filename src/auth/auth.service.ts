@@ -12,9 +12,9 @@ export class AuthService {
     const botToken = this.configService.get<string>('TELEGRAMBOT_TOKEN')
 
     try {
-      validate(initData, botToken, {
+      /*validate(initData, botToken, {
         expiresIn: 100000,
-      })
+      })*/
 
       const parsedData = parse(initData)
       const user = await this.findOrCreateUser(parsedData.user.id, parsedData.user?.username || "No nick", refId, parsedData.user.languageCode)

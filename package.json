@@ -30,6 +30,7 @@
     "@nestjs/schedule": "^4.1.1",
     "@nestjs/websockets": "^10.4.5",
     "@prisma/client": "^5.19.1",
+    "@prisma/debug": "^5.22.0",
     "@telegram-apps/init-data-node": "^1.0.4",
     "@tonclient/core": "^1.30.0",
     "@types/node-telegram-bot-api": "^0.64.7",

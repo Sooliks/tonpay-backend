@@ -129,6 +129,7 @@ model Order {
   sellerId    String    @db.ObjectId
   feedback    Feedback?
   reports     Report[]
+  count       Int       @default(0)
 }
 
 model Chat {
