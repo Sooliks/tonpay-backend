@@ -170,10 +170,10 @@ export class SaleService {
     const user = await this.prisma.user.findUnique({where: {id: userId}})
     if(!user)throw new BadRequestException('Not found user')
     if(user.isBanned){
-
+      throw new BadRequestException('You have ban')
     }
     if(!user.isPremium){
-      if(count >= 10){
+      if(count >= 12){
         throw new BadRequestException('For users without a premium, the number of sales is limited')
       }
     }
