@@ -53,7 +53,7 @@ export class OrdersService {
             const message = await this.chatService.createMessage({
                 recipientId: dto.userId,
                 senderId: sale.userId,
-                message: `The order has been created, confirm only after the order is fully completed. Don't forget to confirm it on the order page. ${product ? `\n\n\n\nAuto delivery: ${product}` : ''}`
+                message: `The order has been created, confirm only after the order is fully completed. Don't forget to confirm it on the order page. ${product ? `\n\n\n\nAuto delivery: ${product}` : ''} \n\n\n Count: ${dto.count}`
             }, true)
             if (sale.autoMessage) {
                 await this.chatService.createMessage({
