@@ -5,9 +5,14 @@ import { CloudinaryService } from "../cloudinary/cloudinary.service";
 import { FeedbackService } from "../feedback/feedback.service";
 import { NotificationsService } from "../notifications/notifications.service";
 import { TelegramBotService } from "../telegram-bot/telegram-bot.service";
+import { MoneyService } from "../money/money.service";
 @Injectable()
 export class SaleService {
-  constructor(private readonly prisma: PrismaService, private readonly cloudinary: CloudinaryService, private readonly feedbackService: FeedbackService, private readonly notificationsService: NotificationsService, private readonly telegramBotService: TelegramBotService) {}
+  private readonly awardForPublication: number;
+
+  constructor(private readonly prisma: PrismaService, private readonly cloudinary: CloudinaryService, private readonly feedbackService: FeedbackService, private readonly notificationsService: NotificationsService, private readonly telegramBotService: TelegramBotService, private readonly moneyService: MoneyService) {
+    this.awardForPublication = 0.05;
+  }
   async findAllBySubScopeId(id: string, count: number, skip?: number, search?: string){
     const whereCondition: any = {
       subScopeId: id,
@@ -200,13 +205,19 @@ export class SaleService {
   }
 
   async publish(idSale: string){
-    return this.prisma.sale.update({
+    const sale = await this.prisma.sale.update({
       where: {id: idSale},
       data: {
         isModerating: false,
         isPublished: true
-      }
+      },
+      include: {user: true}
     })
+    if(!sale.user.isPublishedFirstSale){
+      await this.moneyService.plusMoney(sale.user.id, this.awardForPublication)
+      await this.prisma.user.update({where: {id: sale.user.id}, data: {isPublishedFirstSale: true}})
+    }
+    return sale;
   }
   async setLastWatchingSaleId(saleId: string, userId: string) {
     const sale = await this.prisma.sale.findUnique({where: {id: saleId, isPublished: true}})
