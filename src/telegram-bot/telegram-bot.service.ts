@@ -15,9 +15,9 @@ export class TelegramBotService {
             const isSubscribed = await this.isUserSubscribed(chatId);
 
             if (isSubscribed) {
-                await this.sendMessage(chatId, 'Start here - https://t.me/PayOnTonBot/app');
+                await this.sendMessageWithLink(chatId, 'Welcome! 👋 Press launch to trade.', '💰 Launch', 'https://t.me/PayOnTonBot/app');
             } else {
-                await this.sendMessage(chatId, 'Start here - https://t.me/PayOnTonBot/app \nSubscribe to our Telegram channel - https://t.me/payonton');
+                await this.sendMessageWithLink(chatId, 'Welcome! 👋 Press launch to trade. \nSubscribe to our Telegram channel - https://t.me/payonton', '💰 Launch', 'https://t.me/PayOnTonBot/app');
             }
         });
     }
@@ -37,4 +37,23 @@ export class TelegramBotService {
             return false;
         }
     }
+    async sendMessageWithLink(chatId: number | string, message: string, buttonText: string, url: string): Promise<TelegramBot.Message> {
+        try {
+            return this.bot.sendMessage(chatId, message, {
+                reply_markup: {
+                    inline_keyboard: [
+                        [
+                            {
+                                text: buttonText,
+                                url: url
+                            }
+                        ]
+                    ]
+                }
+            });
+        } catch (e) {
+            console.error("Failed to send message with link:", e);
+        }
+    }
+
 }
