@@ -15,6 +15,9 @@ export class ChatService {
         if(!dto.message && (!dto.files || dto.files.length === 0)){
             throw new BadRequestException('The message must contain text or files')
         }
+        if(dto.senderId === dto.recipientId){
+            throw new BadRequestException('You cant send a message to yourself')
+        }
         let chat: Chat = await this.prisma.chat.findFirst({
             where: {
                 AND: [
