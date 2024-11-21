@@ -74,8 +74,15 @@ export class AuthService {
           languageCode: languageCode
         }
       })
+      return user
+    }else {
+      const currentDate = new Date();
+      user = await this.prisma.user.update({
+        where: {id: user.id},
+        data: {lastOnline: currentDate}
+      })
+      return user;
     }
-    return user
   }
   async getUserById(id: string, initData: string) {
     try {
