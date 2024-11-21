@@ -152,14 +152,14 @@ export class TonService {
                 try {
                     const userId = this.sanitizeObjectId(Buffer.from(transaction.inMessage?.body.asSlice().loadStringTail().toString(), 'utf-8').toString('utf-8'));
                     if(!userId){
-                        throw new NotFoundException()
+                        continue
                     }
                     const description: any = transaction.description;
                     const success: boolean = description.computePhase.success && description.actionPhase.success;
                     const amount = fromNano(description.creditPhase.credit.coins)
                     const txId = this.sanitizeObjectId(Buffer.from(this.bigIntToBuffer(transaction.prevTransactionHash).toString('hex').toString(), 'utf-8').toString('utf-8'));
                     if(!txId){
-                        throw new NotFoundException()
+                        continue
                     }
                     const existingTransaction = await this.prisma.transaction.findFirst({
                         where: { transactionId: txId, userId: userId, countTon: Number(amount) }
