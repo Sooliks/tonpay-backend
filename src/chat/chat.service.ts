@@ -39,7 +39,7 @@ export class ChatService {
             },
             include: {
                 users: true
-            },
+            }
         });
         if (!chat) {
             chat = await this.prisma.chat.create({ data: {} });

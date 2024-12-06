@@ -52,8 +52,4 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
       this.connectedUsers.delete(userId);
     }
   }
-  @SubscribeMessage('customEvent')
-  handleCustomEvent(@MessageBody() data: any) {
-    // Обработка события
-  }
 }

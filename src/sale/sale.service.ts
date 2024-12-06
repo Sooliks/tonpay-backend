@@ -101,7 +101,8 @@ export class SaleService {
         orders: true,
         lastUp: true,
         product: true,
-        userId: true
+        userId: true,
+        autoMessage: true
       },
       orderBy: [{lastUp: 'desc'}]
     })
