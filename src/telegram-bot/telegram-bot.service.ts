@@ -45,18 +45,18 @@ export class TelegramBotService implements OnModuleInit {
         if (msg.chat.type === 'private') {
             return;  // Выход из функции, если это личное сообщение
         }
-        const chatId = msg.chat.id;
-        const text = msg.text;
-
+        if (msg.new_chat_members || msg.left_chat_member || msg.chat.title || msg.chat.photo || msg.pinned_message) {
+            console.log('Игнорируем сообщение о действии в группе');
+            return;  // Просто выходим из функции, если это системное сообщение
+        }
         // Игнорируем сообщения от бота
         if (msg.from.is_bot) return;
-
+        const chatId = msg.chat.id;
+        const text = msg.text;
         // Формируем полный контекст, включая сообщение пользователя и общий контекст проекта
-        const fullContext = `${this.context}\nСообщение пользователя: ${text}`;
-
+        const fullContext = `${this.context}\nUser message: ${text}`;
         // Получаем ответ от нейросети с учетом контекста проекта
         const response = await this.getNeuralNetworkResponse(fullContext);
-
         // Отправляем ответ в группу
         this.bot.sendMessage(chatId, response);
     }
