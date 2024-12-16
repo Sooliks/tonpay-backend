@@ -54,7 +54,7 @@ export class TelegramBotService implements OnModuleInit {
         const chatId = msg.chat.id;
         const text = msg.text;
         // Формируем полный контекст, включая сообщение пользователя и общий контекст проекта
-        const fullContext = `${this.context}\nUser message: ${text}`;
+        const fullContext = `User message: ${text}`;
         // Получаем ответ от нейросети с учетом контекста проекта
         const response = await this.getNeuralNetworkResponse(fullContext);
         // Отправляем ответ в группу
