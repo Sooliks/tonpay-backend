@@ -26,7 +26,18 @@ export class TelegramBotService implements OnModuleInit {
             "\n" +
             "What can I sell on PayOnTon?\n" +
             "\n" +
-            "On our platform, you can sell any goods and services permitted by the laws of your country. Whether it's rare skins, unique items or digital collections, all this will find its buyer on PayOnTon.";
+            "On our platform, you can sell any goods and services permitted by the laws of your country. Whether it's rare skins, unique items or digital collections, all this will find its buyer on PayOnTon." +
+            "Mini app - https://t.me/PayOnTonBot/app" +
+            "Channel - https://t.me/payonton" +
+            "Site with road map - https://payonton.site" +
+            "Last news - We’re thrilled to announce a new reward for our sellers!\n" +
+            "🌟 For every user who successfully publishes their first sale on PayOnTon, we’re giving 0.05 TON (~$0.30) as a thank-you for joining our marketplace and sharing your products with the community.\n" +
+            "\n" +
+            "It’s our way of supporting new sellers and boosting activity in the PayOnTon ecosystem. Let’s grow together and make trading on the TON blockchain a rewarding experience!\n" +
+            "\n" +
+            "If you don’t see the category you need for your listing, feel free to suggest it in the comments, and we’ll be happy to add it.\n" +
+            "\n" +
+            "Get started today and earn your reward! 🚀";
         this.bot.onText(/\/start/, async (msg) => {
             const chatId = msg.chat.id;
             const isSubscribed = await this.isUserSubscribed(chatId);
@@ -58,21 +69,23 @@ export class TelegramBotService implements OnModuleInit {
         // Получаем ответ от нейросети с учетом контекста проекта
         const response = await this.getNeuralNetworkResponse(fullContext);
         // Отправляем ответ в группу
-        this.bot.sendMessage(chatId, response);
+        this.bot.sendMessage(chatId, response, {reply_to_message_id: msg.message_id});
     }
     private async getNeuralNetworkResponse(context: string): Promise<string> {
         try {
             const completion = await this.openai.chat.completions.create({
-                model: 'gpt-4o-mini',
+                model: 'gpt-3.5-turbo',
                 messages: [
                     { role: 'system', content: 'You are an assistant for the PayOnTon chat project.' },
                     { role: 'user', content: context },
                 ],
+                temperature: 0.5,
+                max_tokens: 150
             });
             return completion.choices[0].message.content.trim();
         } catch (error) {
             console.error(error);
-            return 'Извините, произошла ошибка при обработке вашего запроса.';
+            //return 'Извините, произошла ошибка при обработке вашего запроса.';
         }
     }
 
