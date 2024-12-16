@@ -45,7 +45,7 @@ export class TelegramBotService implements OnModuleInit {
         if (msg.chat.type === 'private') {
             return;  // Выход из функции, если это личное сообщение
         }
-        if (msg.new_chat_members || msg.left_chat_member || msg.chat.title || msg.chat.photo || msg.pinned_message) {
+        if (!msg.from) {
             console.log('Игнорируем сообщение о действии в группе');
             return;  // Просто выходим из функции, если это системное сообщение
         }
