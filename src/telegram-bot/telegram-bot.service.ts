@@ -60,6 +60,9 @@ export class TelegramBotService implements OnModuleInit {
             console.log('Игнорируем сообщение о действии в группе');
             return;  // Просто выходим из функции, если это системное сообщение
         }
+        if (!msg.text){
+            return;
+        }
         // Игнорируем сообщения от бота
         if (msg.from.is_bot) return;
         const chatId = msg.chat.id;
@@ -74,11 +77,12 @@ export class TelegramBotService implements OnModuleInit {
     private async getNeuralNetworkResponse(context: string): Promise<string> {
         try {
             const completion = await this.openai.chat.completions.create({
-                model: 'gpt-4',
+                model: 'gpt-4o-mini',
                 messages: [
                     { role: 'system', content: 'You are an assistant for the PayOnTon chat project.' },
                     { role: 'user', content: context },
-                ]
+                ],
+                max_tokens: 100
             });
             return completion.choices[0].message.content.trim();
         } catch (error) {
