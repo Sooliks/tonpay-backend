@@ -17,7 +17,7 @@ export class TelegramBotService {
             if (isSubscribed) {
                 await this.sendMessageWithLink(chatId, 'Welcome! 👋 Press launch to trade.', '💰 Launch', 'https://t.me/PayOnTonBot/app');
             } else {
-                await this.sendMessageWithLink(chatId, 'Welcome! 👋 Press launch to trade. \nSubscribe to our Telegram channel - https://t.me/payonton \nRoad map - https://payonton.site', '💰 Launch', 'https://t.me/PayOnTonBot/app');
+                await this.sendMessageWithLink(chatId, 'Welcome! 👋 Press launch to trade. \nSubscribe to our Telegram channel - https://t.me/payonton \nRoad map - https://payonton.site \nChat - https://t.me/payontonchat', '💰 Launch', 'https://t.me/PayOnTonBot/app');
             }
         });
     }
