@@ -78,9 +78,7 @@ export class TelegramBotService implements OnModuleInit {
                 messages: [
                     { role: 'system', content: 'You are an assistant for the PayOnTon chat project.' },
                     { role: 'user', content: context },
-                ],
-                temperature: 0.5,
-                max_tokens: 150
+                ]
             });
             return completion.choices[0].message.content.trim();
         } catch (error) {
