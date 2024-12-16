@@ -77,7 +77,7 @@ export class TelegramBotService implements OnModuleInit {
     private async getNeuralNetworkResponse(context: string): Promise<string> {
         try {
             const completion = await this.openai.chat.completions.create({
-                model: 'gpt-4o-mini',
+                model: 'text-embedding-3-small',
                 messages: [
                     { role: 'system', content: 'You are an assistant for the PayOnTon chat project.' },
                     { role: 'user', content: context },
