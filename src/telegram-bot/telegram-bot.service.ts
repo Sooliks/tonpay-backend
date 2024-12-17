@@ -68,6 +68,13 @@ export class TelegramBotService implements OnModuleInit {
         if (msg.from.is_bot) return;
         const chatId = msg.chat.id;
         const text = msg.text;
+
+        if(msg.text.includes('сайт') || msg.text.includes('site')){
+            this.bot.sendMessage(chatId, 'Our site - https://payonton.site', {reply_to_message_id: msg.message_id});
+        }
+        if(msg.text.includes('app') || msg.text.includes('апка') || msg.text.includes('приложение')){
+            this.bot.sendMessage(chatId, 'Our app - https://t.me/PayOnTonBot/app', {reply_to_message_id: msg.message_id});
+        }
         // Формируем полный контекст, включая сообщение пользователя и общий контекст проекта
         const fullContext = `User message: ${text}`;
         // Получаем ответ от нейросети с учетом контекста проекта
@@ -78,7 +85,7 @@ export class TelegramBotService implements OnModuleInit {
     private async getNeuralNetworkResponse(context: string): Promise<string> {
         try {
             const completion = await this.openai.chat.completions.create({
-                model: 'gpt-3.5-turbo-1106',
+                model: 'gpt-4o-mini',
                 messages: [
                     { role: 'system', content: 'You are an assistant for the PayOnTon chat project.' },
                     { role: 'user', content: context },
