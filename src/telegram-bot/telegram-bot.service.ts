@@ -53,36 +53,39 @@ export class TelegramBotService implements OnModuleInit {
     onModuleInit() {
         this.bot.on('message', (msg) => this.handleMessage(msg));
     }
+    private async sendInfoMessage(msg: TelegramBot.Message): Promise<void> {
+        const chatId = msg.chat.id;
+        const text = msg.text?.toLowerCase();
+        const responses = {
+            site: 'Our site - https://payonton.site',
+            app: 'Our app - https://t.me/PayOnTonBot/app',
+            channel: 'Our channel - https://t.me/payonton',
+        };
+        const keywords = {
+            site: ['сайт', 'site'],
+            app: ['апка', 'приложение', 'app'],
+            channel: ['канал', 'тг канал', 'channel']
+        };
+        for (const [key, words] of Object.entries(keywords)) {
+            if (words.some((word) => text.includes(word))) {
+                this.bot.sendMessage(chatId, responses[key], { reply_to_message_id: msg.message_id });
+                break;
+            }
+        }
+    }
     private async handleMessage(msg: TelegramBot.Message) {
-        if (msg.chat.type === 'private') {
-            return;  // Выход из функции, если это личное сообщение
-        }
-        /*if (!msg.from) {
-            console.log('Игнорируем сообщение о действии в группе');
-            return;
-        }*/
-        if (!msg.text){
-            return;
-        }
-        // Игнорируем сообщения от бота
+        if (msg.chat.type === 'private') return;
+        if (!msg.from) return;
+        if (!msg.text) return;
         if (msg.from.is_bot) return;
         const chatId = msg.chat.id;
-        const text = msg.text.toLowerCase();
-
-        if(text.includes('сайт') || text.includes('site')){
-            this.bot.sendMessage(chatId, 'Our site - https://payonton.site', {reply_to_message_id: msg.message_id});
-        }
-        if(text.includes('app') || text.includes('апка') || text.includes('приложение')){
-            this.bot.sendMessage(chatId, 'Our app - https://t.me/PayOnTonBot/app', {reply_to_message_id: msg.message_id});
-        }
-        // Формируем полный контекст, включая сообщение пользователя и общий контекст проекта
+        const text = msg.text;
+        this.sendInfoMessage(msg);
         const fullContext = `User message: ${text}`;
-        // Получаем ответ от нейросети с учетом контекста проекта
         const response = await this.getNeuralNetworkResponse(fullContext);
-        // Отправляем ответ в группу
-        this.bot.sendMessage(chatId, response, {reply_to_message_id: msg.message_id});
+        if(response) this.bot.sendMessage(chatId, response, {reply_to_message_id: msg.message_id});
     }
-    private async getNeuralNetworkResponse(context: string): Promise<string> {
+    private async getNeuralNetworkResponse(context: string): Promise<string | null> {
         try {
             const completion = await this.openai.chat.completions.create({
                 model: 'gpt-4o-mini',
@@ -95,7 +98,7 @@ export class TelegramBotService implements OnModuleInit {
             return completion.choices[0].message.content.trim();
         } catch (error) {
             console.error(error);
-            //return 'Извините, произошла ошибка при обработке вашего запроса.';
+            return null;
         }
     }
 
