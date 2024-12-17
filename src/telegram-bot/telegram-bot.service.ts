@@ -57,22 +57,22 @@ export class TelegramBotService implements OnModuleInit {
         if (msg.chat.type === 'private') {
             return;  // Выход из функции, если это личное сообщение
         }
-        if (!msg.from) {
+        /*if (!msg.from) {
             console.log('Игнорируем сообщение о действии в группе');
-            return;  // Просто выходим из функции, если это системное сообщение
-        }
+            return;
+        }*/
         if (!msg.text){
             return;
         }
         // Игнорируем сообщения от бота
         if (msg.from.is_bot) return;
         const chatId = msg.chat.id;
-        const text = msg.text;
+        const text = msg.text.toLowerCase();
 
-        if(msg.text.includes('сайт') || msg.text.includes('site')){
+        if(text.includes('сайт') || text.includes('site')){
             this.bot.sendMessage(chatId, 'Our site - https://payonton.site', {reply_to_message_id: msg.message_id});
         }
-        if(msg.text.includes('app') || msg.text.includes('апка') || msg.text.includes('приложение')){
+        if(text.includes('app') || text.includes('апка') || text.includes('приложение')){
             this.bot.sendMessage(chatId, 'Our app - https://t.me/PayOnTonBot/app', {reply_to_message_id: msg.message_id});
         }
         // Формируем полный контекст, включая сообщение пользователя и общий контекст проекта
