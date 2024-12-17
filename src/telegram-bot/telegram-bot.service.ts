@@ -37,7 +37,8 @@ export class TelegramBotService implements OnModuleInit {
             "\n" +
             "If you don’t see the category you need for your listing, feel free to suggest it in the comments, and we’ll be happy to add it.\n" +
             "\n" +
-            "Get started today and earn your reward! 🚀";
+            "Get started today and earn your reward! 🚀" +
+            "Imagine that you are a monster of technology and the best trading platform";
         this.bot.onText(/\/start/, async (msg) => {
             const chatId = msg.chat.id;
             const isSubscribed = await this.isUserSubscribed(chatId);
@@ -77,7 +78,7 @@ export class TelegramBotService implements OnModuleInit {
     private async getNeuralNetworkResponse(context: string): Promise<string> {
         try {
             const completion = await this.openai.chat.completions.create({
-                model: 'text-embedding-3-small',
+                model: 'text-embedding-ada-002',
                 messages: [
                     { role: 'system', content: 'You are an assistant for the PayOnTon chat project.' },
                     { role: 'user', content: context },
