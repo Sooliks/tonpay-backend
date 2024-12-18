@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
-import { Address, fromNano, internal, TonClient, Transaction, WalletContractV4 } from "ton";
+import { Address, fromNano, internal, TonClient, WalletContractV4 } from "ton";
 import { Cron } from "@nestjs/schedule";
 import { TransactionType } from "@prisma/client";
 import { mnemonicToWalletKey } from "ton-crypto";
@@ -131,19 +131,6 @@ export class TonService {
         this.checkNewTransactions().then(res=>{
 
         }).catch(err=>console.error(err));
-    }
-    bigIntToBuffer(data: bigint) {
-        if (!data) {
-            return Buffer.from([])
-        }
-        const hexStr = data.toString(16)
-        const pad = hexStr.padStart(64)
-        const hashHex = Buffer.from(pad, 'hex')
-
-        return hashHex
-    }
-    sanitizeObjectId(oid: string): string {
-        return oid.replace(/[\x00]/g, '').replace(/[^0-9a-f]/g, '');
     }
     async getTransactionsWithRetry(retries: number = 3, limit: number = 20): Promise<any> {
         let attempts = 0;
