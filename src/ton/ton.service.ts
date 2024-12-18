@@ -145,7 +145,7 @@ export class TonService {
     async checkNewTransactions() {
         try {
             const address = this.ourWalletAddress;
-            const transactions = await this.client.getTransactions(address, { limit: 5 });
+            const transactions = await this.client.getTransactions(address, { limit: 20, inclusive: true });
             for (const transaction of transactions) {
                 try {
                     const userId = this.sanitizeObjectId(Buffer.from(transaction.inMessage?.body.asSlice().loadStringTail().toString(), 'utf-8').toString('utf-8'));
