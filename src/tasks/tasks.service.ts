@@ -39,7 +39,11 @@ export class TasksService {
         if (!task) {
             throw new NotFoundException('Task not found');
         }
-        const result = await task.check(userId)
+        const user = await this.prisma.user.findUnique({where: {id: userId}})
+        if(!user){
+            throw new NotFoundException('User not found');
+        }
+        const result = await task.check(user.telegramId)
         if(result){
             const prismaTask = await this.prisma.task.findFirst({
                 where: {
