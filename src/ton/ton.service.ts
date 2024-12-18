@@ -12,6 +12,7 @@ export class TonService {
     private client: TonClient;
     private readonly fee: number;
     private readonly ourWalletAddress: Address;
+    private lastLt: string | null = null;
     constructor(private readonly prisma: PrismaService, private readonly configService: ConfigService, private readonly notificationsService: NotificationsService) {
         this.fee = 15;
         this.client = new TonClient({
@@ -145,9 +146,14 @@ export class TonService {
     async checkNewTransactions() {
         try {
             const address = this.ourWalletAddress;
-            const transactions = await this.client.getTransactions(address, {
-                limit: 5, lt: Date.now().toString()
-            });
+            const options: any = { limit: 20 };
+            if (this.lastLt) {
+                options.lt = this.lastLt;
+            }
+            const transactions = await this.client.getTransactions(address, options);
+            if (transactions.length > 0) {
+                this.lastLt = transactions[0].lt.toString(); // Сохраняем последнее lt
+            }
             for (const transaction of transactions) {
                 try {
                     const userId = this.sanitizeObjectId(Buffer.from(transaction.inMessage?.body.asSlice().loadStringTail().toString(), 'utf-8').toString('utf-8'));
