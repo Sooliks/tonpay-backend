@@ -12,7 +12,6 @@ export class TonService {
     private client: TonClient;
     private readonly fee: number;
     private readonly ourWalletAddress: Address;
-    private lastLt: string | null = null;
     constructor(private readonly prisma: PrismaService, private readonly configService: ConfigService, private readonly notificationsService: NotificationsService) {
         this.fee = 15;
         this.client = new TonClient({
@@ -146,9 +145,12 @@ export class TonService {
     async checkNewTransactions() {
         try {
             const address = this.ourWalletAddress;
+            const currentDate = new Date();
+            const oneHourAgo = new Date(currentDate.getTime() - 1 * 60 * 60 * 1000);
             const transactions = await this.client.getTransactions(address, {
                 limit: 20,
                 to_lt: new Date().getTime().toString(),
+                lt: oneHourAgo.getTime().toString()
             });
             for (const transaction of transactions) {
                 try {
