@@ -146,13 +146,12 @@ export class TonService {
     async checkNewTransactions() {
         try {
             const address = this.ourWalletAddress;
-            const options: any = { limit: 20 };
-            if (this.lastLt) {
-                options.lt = this.lastLt;
-            }
-            const transactions = await this.client.getTransactions(address, options);
+            const transactions = await this.client.getTransactions(address, {
+                limit: 20,
+                lt: this.lastLt || undefined,
+            });
             if (transactions.length > 0) {
-                this.lastLt = transactions[0].lt.toString(); // Сохраняем последнее lt
+                this.lastLt = transactions[0].lt.toString(); // Сохраняем `lt` для следующего вызова
             }
             for (const transaction of transactions) {
                 try {
@@ -197,6 +196,12 @@ export class TonService {
             }
         }catch (error) {
             console.error('Ошибка', error);
+            if (error.response?.data?.error.includes('lt not in db')) {
+                console.warn('Старый lt недоступен, сбрасываем lastLt');
+                this.lastLt = null; // Сбрасываем `lt`, чтобы запросить последние транзакции
+            } else {
+                console.error('Ошибка при получении транзакций:', error);
+            }
         }
     }
 }
