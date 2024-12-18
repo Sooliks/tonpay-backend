@@ -1,7 +1,6 @@
-import { Controller, Get, Query, Request } from "@nestjs/common";
+import { Body, Controller, Get, Post, Request } from "@nestjs/common";
 import { TasksService } from './tasks.service';
-import { Roles } from "../decorators/role.decorator";
-import { Role } from "@prisma/client";
+import { CheckCompleteTaskDto } from "./tasks.dto";
 
 @Controller('tasks')
 export class TasksController {
@@ -10,5 +9,10 @@ export class TasksController {
   @Get('get')
   async getTasks(@Request() req){
     return this.tasksService.getTasks(req.user.id);
+  }
+
+  @Post('check')
+  async check(@Request() req, @Body() dto: CheckCompleteTaskDto ) {
+    return this.tasksService.checkCompleteTask(dto, req.user.id);
   }
 }

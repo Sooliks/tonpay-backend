@@ -178,13 +178,13 @@ export class TonService {
                 try {
                     const userId = transaction.in_msg.message;
                     if(!userId){
-                        continue
+                        continue;
                     }
                     const amount = fromNano(transaction.in_msg.value)
-                    const txId = this.sanitizeObjectId(Buffer.from(this.bigIntToBuffer(transaction.transaction_id.hash).toString('hex').toString(), 'utf-8').toString('utf-8'));
-                    if(!txId){
-                        continue
+                    if(!amount){
+                        continue;
                     }
+                    const txId = transaction.transaction_id.hash;
                     const existingTransaction = await this.prisma.transaction.findFirst({
                         where: { transactionId: txId, userId: userId, countTon: Number(amount) }
                     })
@@ -210,7 +210,7 @@ export class TonService {
                     }
                 }catch (error) {
                     console.error('Ошибка', error);
-                    continue
+                    continue;
                 }
             }
         }catch (error) {
