@@ -148,11 +148,8 @@ export class TonService {
             const address = this.ourWalletAddress;
             const transactions = await this.client.getTransactions(address, {
                 limit: 20,
-                lt: this.lastLt || undefined,
+                to_lt: new Date().getTime().toString(),
             });
-            if (transactions.length > 0) {
-                this.lastLt = transactions[0].lt.toString(); // Сохраняем `lt` для следующего вызова
-            }
             for (const transaction of transactions) {
                 try {
                     const userId = this.sanitizeObjectId(Buffer.from(transaction.inMessage?.body.asSlice().loadStringTail().toString(), 'utf-8').toString('utf-8'));
@@ -196,12 +193,6 @@ export class TonService {
             }
         }catch (error) {
             console.error('Ошибка', error);
-            if (error.response?.data?.error.includes('lt not in db')) {
-                console.warn('Старый lt недоступен, сбрасываем lastLt');
-                this.lastLt = null; // Сбрасываем `lt`, чтобы запросить последние транзакции
-            } else {
-                console.error('Ошибка при получении транзакций:', error);
-            }
         }
     }
 }
