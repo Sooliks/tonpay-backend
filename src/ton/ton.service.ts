@@ -145,13 +145,7 @@ export class TonService {
     async checkNewTransactions() {
         try {
             const address = this.ourWalletAddress;
-            const currentDate = new Date();
-            const oneHourAgo = new Date(currentDate.getTime() - 1 * 60 * 60 * 1000);
-            const transactions = await this.client.getTransactions(address, {
-                limit: 20,
-                to_lt: new Date().getTime().toString(),
-                lt: oneHourAgo.getTime().toString()
-            });
+            const transactions = await this.client.getTransactions(address, { limit: 5 });
             for (const transaction of transactions) {
                 try {
                     const userId = this.sanitizeObjectId(Buffer.from(transaction.inMessage?.body.asSlice().loadStringTail().toString(), 'utf-8').toString('utf-8'));
