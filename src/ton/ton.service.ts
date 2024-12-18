@@ -142,10 +142,22 @@ export class TonService {
     sanitizeObjectId(oid: string): string {
         return oid.replace(/[\x00]/g, '').replace(/[^0-9a-f]/g, '');
     }
+    private lastLt: string | null = null;
+    private lastTransactionHash: string | null = null;
+
     async checkNewTransactions() {
         try {
             const address = this.ourWalletAddress;
-            const transactions = await this.client.getTransactions(address, { limit: 20, inclusive: true });
+            const options: any = { limit: 20 };
+            if (this.lastLt && this.lastTransactionHash) {
+                options.lt = this.lastLt;
+                options.prevTransactionHash = this.lastTransactionHash;
+            }
+            const transactions = await this.client.getTransactions(address, options);
+            if (transactions.length > 0) {
+                this.lastLt = transactions[0].lt.toString();
+                this.lastTransactionHash = transactions[0].prevTransactionHash.toString();
+            }
             for (const transaction of transactions) {
                 try {
                     const userId = this.sanitizeObjectId(Buffer.from(transaction.inMessage?.body.asSlice().loadStringTail().toString(), 'utf-8').toString('utf-8'));
