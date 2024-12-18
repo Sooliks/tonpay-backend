@@ -1,17 +1,19 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
-import { Address, fromNano, internal, TonClient, WalletContractV4 } from "ton";
+import { Address, fromNano, internal, TonClient, Transaction, WalletContractV4 } from "ton";
 import { Cron } from "@nestjs/schedule";
 import { TransactionType } from "@prisma/client";
 import { mnemonicToWalletKey } from "ton-crypto";
 import { ConfigService } from "@nestjs/config";
 import { NotificationsService } from "../notifications/notifications.service";
+import axios from "axios";
 
 @Injectable()
 export class TonService {
     private client: TonClient;
     private readonly fee: number;
     private readonly ourWalletAddress: Address;
+    private readonly ourWalletAddressString: string;
     constructor(private readonly prisma: PrismaService, private readonly configService: ConfigService, private readonly notificationsService: NotificationsService) {
         this.fee = 15;
         this.client = new TonClient({
@@ -19,6 +21,7 @@ export class TonService {
             apiKey: 'ea3449af5a3b4d4dfae328caa64e0ee315a4b829c46094586f33fa88e9d35bdc'
         });
         this.ourWalletAddress = Address.parse('UQDFD5TTfKEKnFgJkeKiCCzrDpX_iM85JRdig3RnmPrnjjMA');
+        this.ourWalletAddressString = "UQDFD5TTfKEKnFgJkeKiCCzrDpX_iM85JRdig3RnmPrnjjMA";
     }
     sleep(ms: number) {
         return new Promise(resolve => setTimeout(resolve, ms));
@@ -142,32 +145,36 @@ export class TonService {
     sanitizeObjectId(oid: string): string {
         return oid.replace(/[\x00]/g, '').replace(/[^0-9a-f]/g, '');
     }
-    private lastLt: string | null = null;
-    private lastTransactionHash: string | null = null;
-
+    async getTransactionsWithRetry(retries: number = 3, limit: number = 20): Promise<any> {
+        let attempts = 0;
+        while (attempts < retries) {
+            try {
+                const response = await axios.get(`https://toncenter.com/api/v2/getTransactions?address=${this.ourWalletAddressString}&limit=${limit}&to_lt=0&archival=true`);
+                if (response.data.ok) {
+                    return response.data.result;
+                }
+                throw new Error(response.data.error);
+            } catch (error) {
+                attempts++;
+                console.error(`Attempt ${attempts} failed. Retrying...`);
+                if (attempts >= retries) {
+                    throw new Error("Max retries reached. Unable to fetch transactions.");
+                }
+                await new Promise(resolve => setTimeout(resolve, 2000)); // задержка перед повтором
+            }
+        }
+    }
     async checkNewTransactions() {
         try {
-            const address = this.ourWalletAddress;
-            const options: any = { limit: 20 };
-            if (this.lastLt && this.lastTransactionHash) {
-                options.lt = this.lastLt;
-                options.prevTransactionHash = this.lastTransactionHash;
-            }
-            const transactions = await this.client.getTransactions(address, options);
-            if (transactions.length > 0) {
-                this.lastLt = transactions[0].lt.toString();
-                this.lastTransactionHash = transactions[0].prevTransactionHash.toString();
-            }
+            const transactions: any[] = await this.getTransactionsWithRetry()
             for (const transaction of transactions) {
                 try {
-                    const userId = this.sanitizeObjectId(Buffer.from(transaction.inMessage?.body.asSlice().loadStringTail().toString(), 'utf-8').toString('utf-8'));
+                    const userId = transaction.in_msg.message;
                     if(!userId){
                         continue
                     }
-                    const description: any = transaction.description;
-                    const success: boolean = description.computePhase.success && description.actionPhase.success;
-                    const amount = fromNano(description.creditPhase.credit.coins)
-                    const txId = this.sanitizeObjectId(Buffer.from(this.bigIntToBuffer(transaction.prevTransactionHash).toString('hex').toString(), 'utf-8').toString('utf-8'));
+                    const amount = fromNano(transaction.in_msg.value)
+                    const txId = this.sanitizeObjectId(Buffer.from(this.bigIntToBuffer(transaction.transaction_id.hash).toString('hex').toString(), 'utf-8').toString('utf-8'));
                     if(!txId){
                         continue
                     }
@@ -179,7 +186,7 @@ export class TonService {
                             data: {
                                 userId: userId,
                                 transactionId: txId,
-                                confirmed: success,
+                                confirmed: true,
                                 countTon: Number(amount),
                                 type: TransactionType.PAYMENT
                             }
