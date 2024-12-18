@@ -21,11 +21,12 @@ import { TelegramBotModule } from './telegram-bot/telegram-bot.module';
 import { ChatModule } from './chat/chat.module';
 import { ChatSocketModule } from './chat-socket/chat-socket.module';
 import { ReportsModule } from './reports/reports.module';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
   imports: [SaleModule, AuthModule, ConfigModule.forRoot({
     isGlobal: true
-  }), ScopesModule, FeedbackModule, TonModule, RolesModule, StatsModule, CloudinaryModule, OrdersModule, ProfileModule, MoneyModule, NotificationsModule, TelegramBotModule, ChatModule, ChatSocketModule, ReportsModule],
+  }), ScopesModule, FeedbackModule, TonModule, RolesModule, StatsModule, CloudinaryModule, OrdersModule, ProfileModule, MoneyModule, NotificationsModule, TelegramBotModule, ChatModule, ChatSocketModule, ReportsModule, TasksModule],
   controllers: [AppController],
   providers: [
     AppService,

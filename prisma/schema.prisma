@@ -36,6 +36,7 @@ model User {
   reportsAdmin         Report[]      @relation("Admin")
   isSubscribed         Boolean       @default(false)
   isPublishedFirstSale Boolean?      @default(false)
+  tasks                Task[]
 }
 
 model Transaction {
@@ -172,6 +173,14 @@ model Report {
   isCompleted Boolean  @default(false)
   admin       User?    @relation("Admin", fields: [adminId], references: [id], onDelete: Cascade)
   adminId     String?  @db.ObjectId
+}
+
+model Task {
+  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String  @db.ObjectId
+  isComplete   Boolean
+  idTaskInCode Int
 }
 
 enum Role {

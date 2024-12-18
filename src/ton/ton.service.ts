@@ -123,7 +123,7 @@ export class TonService {
             orderBy: [{id: 'desc'}]
         })
     }
-    @Cron('*/15 * * * * *')
+    @Cron('*/30 * * * * *')
     handleCron() {
         this.checkNewTransactions().then(res=>{
 

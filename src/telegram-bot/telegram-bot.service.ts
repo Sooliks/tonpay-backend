@@ -52,6 +52,7 @@ export class TelegramBotService implements OnModuleInit {
     }
     onModuleInit() {
         this.bot.on('message', (msg) => this.handleMessage(msg));
+        this.bot.setWebHook('https://sooliks-tonpay-backend-0bb9.twc1.net/api/payment-webhook');
     }
     private async sendInfoMessage(msg: TelegramBot.Message): Promise<void> {
         const chatId = msg.chat.id;
@@ -134,6 +135,23 @@ export class TelegramBotService implements OnModuleInit {
             });
         } catch (e) {
             console.error("Failed to send message with link:", e);
+        }
+    }
+    async sendInvoice(chatId: number | string, amount: number, description: string) {
+        const providerToken = 'YOUR_PAYMENT_PROVIDER_TOKEN';  // ваш токен
+        const invoicePayload = 'UniqueTransactionId';  // уникальный идентификатор транзакции
+        const currency = 'USD';  // валюта
+        const totalAmount = amount * 100;  // сумма в копейка
+        const prices: TelegramBot.LabeledPrice[] = [
+            {
+                label: description, // Описание товара/услуги
+                amount: totalAmount, // Сумма в копейках
+            }
+        ];
+        try {
+            await this.bot.sendInvoice(chatId, 'Pay for your service', description, invoicePayload, providerToken, currency, prices);
+        } catch (error) {
+            console.error("Error sending invoice:", error);
         }
     }
 
