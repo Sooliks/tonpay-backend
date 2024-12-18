@@ -14,7 +14,7 @@ export class TasksService {
             {
                 id: 0,
                 name: 'Subscribe to our channel',
-                reward: 0.05,
+                reward: 0.04,
                 check: async (userId: string) => {
                     const user = await this.prisma.user.findUnique({where: {id: userId}})
                     if(!user){
@@ -41,7 +41,7 @@ export class TasksService {
             {
                 id: 2,
                 name: 'Invite 5 friends',
-                reward: 0.1,
+                reward: 0.3,
                 check: async (userId: string) => {
                     const count = await this.referralsService.getCountReferrals(userId);
                     return count >= 5;
