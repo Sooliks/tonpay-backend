@@ -4,19 +4,49 @@ import { TaskType } from "../types/tasks";
 import { TelegramBotService } from "../telegram-bot/telegram-bot.service";
 import { CheckCompleteTaskDto } from "./tasks.dto";
 import { MoneyService } from "../money/money.service";
+import { ReferralsService } from "../referrals/referrals.service";
 
 @Injectable()
 export class TasksService {
     private readonly tasks: TaskType[];
-    constructor(private readonly prisma: PrismaService, private readonly telegramBotService: TelegramBotService, private readonly moneyService: MoneyService) {
+    constructor(private readonly prisma: PrismaService, private readonly telegramBotService: TelegramBotService, private readonly moneyService: MoneyService, private readonly referralsService: ReferralsService) {
         this.tasks = [
             {
                 id: 0,
                 name: 'Subscribe to our channel',
                 reward: 0.05,
-                check: async (telegramId: number) => await this.telegramBotService.isUserSubscribed(telegramId),
+                check: async (userId: string) => {
+                    const user = await this.prisma.user.findUnique({where: {id: userId}})
+                    if(!user){
+                        throw new NotFoundException('User not found');
+                    }
+                    return await this.telegramBotService.isUserSubscribed(user.telegramId)
+                },
                 isComplete: false,
                 link: 'https://t.me/payonton'
+            },
+            {
+                id: 1,
+                name: 'Have more than 10 TON on your balance',
+                reward: 0.1,
+                check: async (userId: string) => {
+                    const user = await this.prisma.user.findUnique({where: {id: userId}})
+                    if(!user){
+                        throw new NotFoundException('User not found');
+                    }
+                    return user.money > 10
+                },
+                isComplete: false
+            },
+            {
+                id: 2,
+                name: 'Invite 5 friends',
+                reward: 0.1,
+                check: async (userId: string) => {
+                    const count = await this.referralsService.getCountReferrals(userId);
+                    return count >= 5;
+                },
+                isComplete: false
             }
         ]
     }
@@ -39,11 +69,7 @@ export class TasksService {
         if (!task) {
             throw new NotFoundException('Task not found');
         }
-        const user = await this.prisma.user.findUnique({where: {id: userId}})
-        if(!user){
-            throw new NotFoundException('User not found');
-        }
-        const result = await task.check(user.telegramId)
+        const result = await task.check(userId)
         if(result){
             const prismaTask = await this.prisma.task.findFirst({
                 where: {

@@ -22,11 +22,12 @@ import { ChatModule } from './chat/chat.module';
 import { ChatSocketModule } from './chat-socket/chat-socket.module';
 import { ReportsModule } from './reports/reports.module';
 import { TasksModule } from './tasks/tasks.module';
+import { ReferralsModule } from './referrals/referrals.module';
 
 @Module({
   imports: [SaleModule, AuthModule, ConfigModule.forRoot({
     isGlobal: true
-  }), ScopesModule, FeedbackModule, TonModule, RolesModule, StatsModule, CloudinaryModule, OrdersModule, ProfileModule, MoneyModule, NotificationsModule, TelegramBotModule, ChatModule, ChatSocketModule, ReportsModule, TasksModule],
+  }), ScopesModule, FeedbackModule, TonModule, RolesModule, StatsModule, CloudinaryModule, OrdersModule, ProfileModule, MoneyModule, NotificationsModule, TelegramBotModule, ChatModule, ChatSocketModule, ReportsModule, TasksModule, ReferralsModule],
   controllers: [AppController],
   providers: [
     AppService,

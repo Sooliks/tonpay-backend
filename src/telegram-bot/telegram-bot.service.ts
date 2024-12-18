@@ -110,9 +110,9 @@ export class TelegramBotService implements OnModuleInit {
             
         }
     }
-    async isUserSubscribed(telegramId: number): Promise<boolean> {
+    async isUserSubscribed(telegramId: number, channelId?: string): Promise<boolean> {
         try {
-            const memberStatus = await this.bot.getChatMember(this.channelId, telegramId);
+            const memberStatus = await this.bot.getChatMember(channelId || this.channelId, telegramId);
             return ['member', 'administrator', 'creator'].includes(memberStatus.status);
         } catch (error) {
             console.error("Failed to check user subscription:", error);
