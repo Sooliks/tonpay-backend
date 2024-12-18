@@ -149,7 +149,14 @@ export class TonService {
         let attempts = 0;
         while (attempts < retries) {
             try {
-                const response = await axios.get(`https://toncenter.com/api/v2/getTransactions?address=${this.ourWalletAddressString}&limit=${limit}&to_lt=0&archival=true`);
+                const timestamp = new Date().getTime();
+                const response = await axios.get(`https://toncenter.com/api/v2/getTransactions?address=${this.ourWalletAddressString}&limit=${limit}&archival=true&timestamp=${timestamp}`, {
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    }
+                });
                 if (response.data.ok) {
                     return response.data.result;
                 }
