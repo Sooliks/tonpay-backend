@@ -123,7 +123,7 @@ export class TonService {
             orderBy: [{id: 'desc'}]
         })
     }
-    @Cron('*/30 * * * * *')
+    @Cron('*/15 * * * * *')
     handleCron() {
         this.checkNewTransactions().then(res=>{
 
@@ -184,12 +184,13 @@ export class TonService {
                             await this.notificationsService.notifyUser(userId, `Your balance has been replenished by ${amount} TON.`, true)
                         }
                     }
-                }catch (e) {
+                }catch (error) {
+                    console.error('Ошибка', error);
                     continue
                 }
             }
         }catch (error) {
-            //console.error('Ошибка', error);
+            console.error('Ошибка', error);
         }
     }
 }
