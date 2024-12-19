@@ -14,7 +14,7 @@ export class TasksService {
             {
                 id: 0,
                 name: 'Subscribe to our channel',
-                reward: 0.04,
+                reward: 0.02,
                 check: async (userId: string) => {
                     const user = await this.prisma.user.findUnique({where: {id: userId}})
                     if(!user){
