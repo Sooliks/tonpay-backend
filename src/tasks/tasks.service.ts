@@ -31,9 +31,7 @@ export class TasksService {
                 reward: 0.1,
                 check: async (userId: string) => {
                     const user = await this.prisma.user.findUnique({where: {id: userId}})
-                    if(!user){
-                        throw new NotFoundException('User not found');
-                    }
+                    if(!user) throw new NotFoundException('User not found');
                     return user.money > 10
                 },
                 isComplete: false
@@ -47,6 +45,28 @@ export class TasksService {
                     return count >= 5;
                 },
                 isComplete: false
+            },
+            {
+                id: 3,
+                name: 'Invite 20 friends',
+                reward: 1,
+                check: async (userId: string) => {
+                    const count = await this.referralsService.getCountReferrals(userId);
+                    return count >= 20;
+                },
+                isComplete: false
+            },
+            {
+                id: 4,
+                name: 'Subscribe to our streamer',
+                reward: 0.02,
+                check: async (userId: string) => {
+                    const user = await this.prisma.user.findUnique({where: {id: userId}})
+                    if(!user)throw new NotFoundException('User not found');
+                    return await this.telegramBotService.isUserSubscribed(user.telegramId, "-1002170458600")
+                },
+                isComplete: false,
+                link: 'https://t.me/payonton'
             }
         ]
     }
