@@ -43,7 +43,8 @@ export class TonService {
         if(user.money < amount){
             throw new BadRequestException('Insufficient funds')
         }
-        const amountWithFee = this.subtractPercentage(amount, user.isSubscribed ? 5 : this.fee);
+        const userFee = user.isSubscribed ? 10 : this.fee;
+        const amountWithFee = this.subtractPercentage(amount, userFee);
         const balance = Number(fromNano(await this.client.getBalance(this.ourWalletAddress)));
         if(balance < amountWithFee){
             throw new BadRequestException('Sorry, there is not enough balance on our wallet right now')
@@ -70,7 +71,7 @@ export class TonService {
                     internal({
                         to: address,
                         value: amountWithFee.toFixed(5).toString(),
-                        body: `Withdraw, fee: ${this.fee}%. User: @${user.nickname}`,
+                        body: `Withdraw, fee: ${userFee}%. User: @${user.nickname}`,
                         bounce: false
                     })
                 ]
