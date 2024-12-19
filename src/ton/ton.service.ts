@@ -7,6 +7,8 @@ import { mnemonicToWalletKey } from "ton-crypto";
 import { ConfigService } from "@nestjs/config";
 import { NotificationsService } from "../notifications/notifications.service";
 import axios from "axios";
+import { TonMongoIdDto } from "./ton.dto";
+import { validate } from 'class-validator';
 
 @Injectable()
 export class TonService {
@@ -165,6 +167,12 @@ export class TonService {
                 try {
                     const userId = transaction.in_msg.message;
                     if(!userId){
+                        continue;
+                    }
+                    const userDto = new TonMongoIdDto();
+                    userDto.userId = userId;
+                    const errors = await validate(userDto)
+                    if (errors.length > 0) {
                         continue;
                     }
                     const amount = fromNano(transaction.in_msg.value)
