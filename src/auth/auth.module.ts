@@ -7,6 +7,7 @@ import { PrismaService } from "../prisma.service";
 import { ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
 import { TelegramBotService } from "../telegram-bot/telegram-bot.service";
+import { NotificationsModule } from "../notifications/notifications.module";
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { TelegramBotService } from "../telegram-bot/telegram-bot.service";
       global: true,
       secret: process.env.JWT_CONSTANTS,
       signOptions: { expiresIn: "1h" },
-    })
+    }), NotificationsModule
   ],
   controllers: [AuthController],
   providers: [AuthService,{

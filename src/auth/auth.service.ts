@@ -4,10 +4,11 @@ import { PrismaService } from "../prisma.service";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { TelegramBotService } from "../telegram-bot/telegram-bot.service";
+import { NotificationsService } from "../notifications/notifications.service";
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService, private readonly configService: ConfigService,private readonly jwtService: JwtService, private readonly telegramBotService: TelegramBotService) {}
+  constructor(private readonly prisma: PrismaService, private readonly configService: ConfigService,private readonly jwtService: JwtService, private readonly telegramBotService: TelegramBotService, private readonly notificationsService: NotificationsService) {}
   async login(initData: string, refId?: string) {
     const botToken = this.configService.get<string>('TELEGRAMBOT_TOKEN')
 
@@ -65,6 +66,10 @@ export class AuthService {
       }catch (e) {
 
       }
+      if(refId) {
+        const userRef = await this.prisma.user.findUnique({ where: { id: refId } });
+        if(!userRef) refId = undefined;
+      }
       user = await this.prisma.user.create({
         data: {
           telegramId: telegramId,
@@ -74,6 +79,7 @@ export class AuthService {
           languageCode: languageCode
         }
       })
+      if(refId)await this.notificationsService.notifyUser(refId, 'You have a new referral! 🎉🎉🎉', true, true)
       return user
     }else {
       const currentDate = new Date();
