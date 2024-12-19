@@ -126,7 +126,7 @@ export class TonService {
             orderBy: [{id: 'desc'}]
         })
     }
-    @Cron('*/15 * * * * *')
+    @Cron('*/35 * * * * *')
     handleCron() {
         this.checkNewTransactions().then(res=>{
 
@@ -172,7 +172,10 @@ export class TonService {
                         continue;
                     }
                     const txId = transaction.transaction_id.hash;
-                    const existingTransaction = await this.prisma.transaction.findFirst({
+                    if(!txId){
+                        continue;
+                    }
+                    const existingTransaction = await this.prisma.transaction.findUnique({
                         where: { transactionId: txId, userId: userId, countTon: Number(amount) }
                     })
                     if (!existingTransaction) {
