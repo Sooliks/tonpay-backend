@@ -66,7 +66,7 @@ export class TasksService {
                     return await this.telegramBotService.isUserSubscribed(user.telegramId, "-1002170458600")
                 },
                 isComplete: false,
-                link: 'https://t.me/payonton'
+                link: 'https://t.me/aomine3vl'
             }
         ]
     }
