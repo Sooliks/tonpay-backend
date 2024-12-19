@@ -29,7 +29,7 @@ export class AuthService {
       }
     } catch (e) {
       console.log(e)
-      throw new UnauthorizedException()
+      throw new UnauthorizedException(e)
     }
   }
   async getAvatarUrl(telegramId: number): Promise<string | null> {
@@ -112,7 +112,7 @@ export class AuthService {
       })
       return user
     }catch (e) {
-      throw new UnauthorizedException()
+      throw new UnauthorizedException(e)
     }
   }
 }
