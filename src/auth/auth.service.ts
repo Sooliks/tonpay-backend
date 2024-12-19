@@ -8,7 +8,7 @@ import { NotificationsService } from "../notifications/notifications.service";
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService, private readonly configService: ConfigService,private readonly jwtService: JwtService, private readonly telegramBotService: TelegramBotService, private readonly notificationsService: NotificationsService) {}
+  constructor(private readonly prisma: PrismaService, private readonly configService: ConfigService, private readonly jwtService: JwtService, private readonly telegramBotService: TelegramBotService, private readonly notificationsService: NotificationsService) {}
   async login(initData: string, refId?: string) {
     const botToken = this.configService.get<string>('TELEGRAMBOT_TOKEN')
 
@@ -95,6 +95,9 @@ export class AuthService {
       const user = await this.prisma.user.findUnique({ where: { id: id }})
       if (!user) {
         throw new NotFoundException()
+      }
+      if(user.isBanned){
+        throw new UnauthorizedException('You banned')
       }
       const currentDate = new Date();
       const parsedData = parse(initData)
