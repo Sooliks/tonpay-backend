@@ -294,7 +294,8 @@ export class SaleService {
         user: true,
       }
     })
-    const salesWithoutProduct = sales.map((sale) => {
+    const salesWithoutProduct = sales.map((sale: any) => {
+      sale.autoDelivery = sale.product.length > 0;
       const { product, autoMessage, ...saleWithoutProduct } = sale;
       return saleWithoutProduct;
     });
