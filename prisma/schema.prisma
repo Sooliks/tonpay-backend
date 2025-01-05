@@ -37,6 +37,7 @@ model User {
   isSubscribed         Boolean       @default(false)
   isPublishedFirstSale Boolean?      @default(false)
   tasks                Task[]
+  notifications        Boolean       @default(true)
 }
 
 model Transaction {
