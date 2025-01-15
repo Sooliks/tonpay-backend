@@ -15,7 +15,7 @@ export class TelegramBotService implements OnModuleInit {
             if (isSubscribed) {
                 await this.sendMessageWithLink(chatId, 'Welcome! 👋 Press launch to trade.', '💰 Launch', 'https://t.me/PayOnTonBot/app');
             } else {
-                await this.sendMessageWithLink(chatId, 'Welcome! 👋 Press launch to trade. \n\nSubscribe to our Telegram channel - https://t.me/payonton \n\nRoad map - https://payonton.site \n\nChat - https://t.me/payontonchat', '💰 Launch', 'https://t.me/PayOnTonBot/app');
+                await this.sendMessageWithLink(chatId, 'Welcome! 👋 Press launch to trade. \n\nSubscribe to our Telegram channel - https://t.me/payonton \n\nRoad map - https://payonton.site', '💰 Launch', 'https://t.me/PayOnTonBot/app');
             }
         });
     }
